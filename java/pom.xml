@@ -19,9 +19,9 @@
 		<java.version>17</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<hapi.version>8.8.0</hapi.version>
-		<cql-evaluator.version>2.6.0</cql-evaluator.version>
-		<cql-translator.version>2.6.0</cql-translator.version>
+		<hapi.version>7.4.0</hapi.version>
+		<cql-evaluator.version>1.4.4</cql-evaluator.version>
+		<cql-translator.version>2.2.0</cql-translator.version>
 		<engine-jackson.version>2.6.0</engine-jackson.version>
 		<org.hl7.fhir.utilities.version>6.8.1</org.hl7.fhir.utilities.version>
         <jetbrains.version>26.1.0</jetbrains.version>
