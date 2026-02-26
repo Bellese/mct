@@ -23,7 +23,7 @@ For feedback and questions please submit an issue to this repository or on the [
 
 ### Steps
 1. Open a terminal and navigate to the 'docker' directory from the root (e.g. `cd docker`)
-2. Standup services with `docker-compose up --build`
+2. Standup services with `docker compose up --build`
   - Once the build is complete, 4 images will be running; the frontend (localhost:3000), the backend (localhost:8088), and 2 HAPI FHIR servers (localhost:8080/fhir and localhost:8082/fhir), which serve as the facilities.
 3. Load data with `./bin/load_local_data.sh` or use a HTTP client like Postman to load the patient test data bundles
   - The bundles can be found here: `java/src/main/resources/configuration/test-bundles`.
