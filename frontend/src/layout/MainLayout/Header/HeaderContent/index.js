@@ -9,25 +9,29 @@ import { SendOutlined } from '@ant-design/icons';
 import FacilitiesMultiSelect from 'components/FacilitiesMultiSelect';
 const dateOptions = [
   {
+    id: 'full-2026',
+    name: '2026 - Full Year'
+  },
+  {
     id: 'q1',
-    name: '2022 - Q1'
+    name: '2026 - Q1'
   },
   {
     id: 'q2',
-    name: '2022 - Q2'
+    name: '2026 - Q2'
   },
   {
     id: 'q3',
-    name: '2022 - Q3'
+    name: '2026 - Q3'
   },
   {
     id: 'q4',
-    name: '2022 - Q4'
+    name: '2026 - Q4'
   }
 ];
 
 const HeaderContent = () => {
-  const { date, facility } = useSelector((state) => state.filter);
+  const { date } = useSelector((state) => state.filter);
   const { facilities, patients } = useSelector((state) => state.data);
 
   const dispatch = useDispatch();

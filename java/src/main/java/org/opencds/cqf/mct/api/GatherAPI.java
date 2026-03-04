@@ -11,6 +11,8 @@ import org.hl7.fhir.r4.model.Period;
 import org.opencds.cqf.mct.SpringContext;
 import org.opencds.cqf.mct.config.MctConstants;
 import org.opencds.cqf.mct.service.GatherService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -23,6 +25,8 @@ import static org.opencds.cqf.cql.evaluator.fhir.util.r4.Parameters.part;
  * The Gather API.
  */
 public class GatherAPI {
+
+   private static final Logger logger = LoggerFactory.getLogger(GatherAPI.class);
 
    /**
     * The $gather operation.
@@ -49,7 +53,15 @@ public class GatherAPI {
                  part(MctConstants.SEVERITY_ERROR, outcome)
          );
       }
-      return new GatherService().gather(patients, facilities, measureIdentifier, period);
+      try {
+         return new GatherService().gather(patients, facilities, measureIdentifier, period);
+      } catch (Exception e) {
+         logger.error("Gather operation failed for measure {}", measureIdentifier, e);
+         OperationOutcome outcome = new OperationOutcome();
+         OperationOutcomeUtil.addIssue(SpringContext.getBean(FhirContext.class), outcome,
+                 MctConstants.SEVERITY_ERROR, e.getMessage(), null, MctConstants.CODE_PROCESSING);
+         return parameters(part(MctConstants.SEVERITY_ERROR, outcome));
+      }
    }
 
    /**

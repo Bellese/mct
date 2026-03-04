@@ -7,6 +7,8 @@ import org.hl7.fhir.r4.model.Group;
 import org.hl7.fhir.r4.model.Measure;
 import org.hl7.fhir.r4.model.MeasureReport;
 import org.hl7.fhir.r4.model.Period;
+import org.cqframework.cql.cql2elm.CqlTranslatorOptions;
+import org.opencds.cqf.cql.evaluator.CqlOptions;
 import org.opencds.cqf.cql.evaluator.builder.DataProviderFactory;
 import org.opencds.cqf.cql.evaluator.builder.EndpointConverter;
 import org.opencds.cqf.cql.evaluator.builder.FhirDalFactory;
@@ -39,12 +41,22 @@ public class MeasureEvaluationService {
    public MeasureEvaluationService(String measureId, Period period) {
       measure = SpringContext.getBean(MeasureConfigurationService.class).getMeasure(measureId);
       measureDataRequirementService = new MeasureDataRequirementService(measure);
+      // Use CqlTranslatorOptions that matches the options used to pre-compile the ELM in the
+      // Library resources (EnableAnnotations, EnableLocators, EnableResultTypes, DisableListDemotion,
+      // DisableListPromotion). This causes TranslatingLibraryLoader.translatorOptionsMatch() to
+      // return true, so the pre-compiled ELM is loaded directly without re-translating from CQL
+      // source — bypassing the QICore model version conflict with cql-evaluator 2.4.0 built-ins.
+      CqlTranslatorOptions translatorOptions = CqlTranslatorOptions.defaultOptions()
+              .withOptions(CqlTranslatorOptions.Options.EnableResultTypes);
+      CqlOptions cqlOptions = new CqlOptions();
+      cqlOptions.setCqlTranslatorOptions(translatorOptions);
       measureProcessor = new R4MeasureProcessor(
               SpringContext.getBean(TerminologyProviderFactory.class),
               SpringContext.getBean(DataProviderFactory.class),
               SpringContext.getBean(LibrarySourceProviderFactory.class),
               SpringContext.getBean("fileFhirDalFactory", FhirDalFactory.class),
-              SpringContext.getBean(EndpointConverter.class)
+              SpringContext.getBean(EndpointConverter.class),
+              null, null, null, null, null, cqlOptions, null
       );
       measurementPeriodStart = DateUtils.convertDateToIso8601String(period.getStart());
       measurementPeriodEnd = DateUtils.convertDateToIso8601String(period.getEnd());

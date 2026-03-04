@@ -40,9 +40,17 @@ const PopulationMeasureReport = ({ processedMeasureReport }) => {
         </MainCard>
       </Grid>
       <Grid item xs={12}>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h5">Ethnicity and Race</Typography>
+        <Grid sx={{ mt: 5 }} item>
+          <Typography variant="h5">Measure Report Data</Typography>
+        </Grid>
+        <MainCard>
+          <MeasureReportPopulationData populationData={populationData} />
+        </MainCard>
+        <Grid sx={{ mt: 5 }} item>
+          <Grid container alignItems="center" justifyContent="space-between">
+            <Grid item>
+              <Typography variant="h5">Ethnicity and Race</Typography>
+            </Grid>
           </Grid>
         </Grid>
         <MainCard>
@@ -51,12 +59,6 @@ const PopulationMeasureReport = ({ processedMeasureReport }) => {
             numeratorDescription={population['numerator'].description}
             denominatorDescription={population['denominator'].description}
           />
-        </MainCard>
-        <Grid sx={{ mt: 5 }} item>
-          <Typography variant="h5">Measure Report Data</Typography>
-        </Grid>
-        <MainCard>
-          <MeasureReportPopulationData populationData={populationData} />
         </MainCard>
       </Grid>
     </>

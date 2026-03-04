@@ -138,6 +138,15 @@ const gatherIndividualLevelData = (measureReportEntries, name) => {
   return individualLevelData;
 };
 
+// Maps gender/sex supplemental data codes to the M/F keys used in the UI.
+// Covers legacy short codes and SNOMED CT sex-assigned-at-birth codes used by newer eCQMs.
+const GENDER_CODE_MAP = {
+  'M': 'M',
+  'F': 'F',
+  '248153007': 'M', // SNOMED: Male sex assigned at birth
+  '248152002': 'F'  // SNOMED: Female sex assigned at birth
+};
+
 const populationGather = (measureReport) => {
   // TODO: Refactor this because in some instances measureScore and gender are not required for ui component
   const population = {
@@ -151,8 +160,9 @@ const populationGather = (measureReport) => {
   // Parse for gender
   measureReport?.contained?.forEach((data) => {
     const code = data.code.coding.find((i) => i.code);
-    if (population.gender[code?.code] !== undefined) {
-      population.gender[code?.code] = data.valueInteger;
+    const genderKey = GENDER_CODE_MAP[code?.code];
+    if (genderKey !== undefined) {
+      population.gender[genderKey] = (population.gender[genderKey] || 0) + (data.valueInteger || 0);
     }
   });
 

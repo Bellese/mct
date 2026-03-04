@@ -41,20 +41,21 @@ public class MeasureConfigurationService {
    /**
     * Gets the specified <a href="http://hl7.org/fhir/measure.html">Measure</a> resource.
     *
+    * Iterates bundle entries directly to preserve contained resources (e.g. effective-data-requirements),
+    * which BundleRetrieveProvider does not reliably return.
+    *
     * @param measureId the measure id
     * @return the measure or null if the measure is not present
     */
    public Measure getMeasure(String measureId) {
-      Iterable<Object> measures = bundleRetrieveProvider.retrieve("Measure", "id", measureId, "Measure",
-              null, null, null, null, null, null,
-              null, null);
-      if (measures.iterator().hasNext()) {
-         Object measure = measures.iterator().next();
-         if (measure instanceof Measure) {
-            return (Measure) measure;
-         }
-      }
-      return null;
+      Bundle measuresBundle = SpringContext.getBean("measuresBundle", Bundle.class);
+      return measuresBundle.getEntry().stream()
+              .map(Bundle.BundleEntryComponent::getResource)
+              .filter(r -> r instanceof Measure)
+              .map(Measure.class::cast)
+              .filter(m -> measureId.equals(m.getIdElement().getIdPart()))
+              .findFirst()
+              .orElse(null);
    }
 
 }

@@ -22,6 +22,8 @@ import org.hl7.fhir.r5.model.Library;
 import org.opencds.cqf.cql.engine.terminology.ValueSetInfo;
 import org.opencds.cqf.mct.SpringContext;
 import org.opencds.cqf.mct.processor.DataRequirementsProcessor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,6 +36,7 @@ import java.util.Optional;
  * The Measure Data Requirement Service.
  */
 public class MeasureDataRequirementService {
+   private static final Logger logger = LoggerFactory.getLogger(MeasureDataRequirementService.class);
    private final FhirContext fhirContext;
    private final Measure measure;
    private final Map<String, Map<String, List<IQueryParameterType>>> searchParamMap;
@@ -94,10 +97,14 @@ public class MeasureDataRequirementService {
                  if (key.equals("Patient")) {
                     value.put("_id", Collections.singletonList(new StringParam(patientId)));
                  } else {
-                    SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
-                            patientParam -> value.put(patientParam.getName(),
-                                    Collections.singletonList(new ReferenceParam(patientId)))
-                    );
+                    try {
+                       SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
+                               patientParam -> value.put(patientParam.getName(),
+                                       Collections.singletonList(new ReferenceParam(patientId)))
+                       );
+                    } catch (IllegalArgumentException e) {
+                       logger.debug("Resource type {} has no patient compartment, skipping", key, e);
+                    }
                  }
               }
       );
@@ -113,8 +120,8 @@ public class MeasureDataRequirementService {
       CqlTranslatorOptions options = CqlTranslatorOptions.defaultOptions();
       CompiledLibrary library = libraryManager.resolveLibrary(
               new VersionedIdentifier()
-                      .withId("DischargedonAntithromboticTherapyQICore4")
-                      .withVersion("0.0.006"), options, new ArrayList<>()
+                      .withId("CMS125FHIRBreastCancerScreen")
+                      .withVersion("1.0.000"), options, new ArrayList<>()
       );
       return processor.gatherDataRequirements(libraryManager, library, options, null, true, true);
    }
@@ -132,7 +139,7 @@ public class MeasureDataRequirementService {
    public Map<String, Map<String, List<IQueryParameterType>>> getSearchParamsByType() {
       Optional<Resource> hasDataReqLibrary = measure.getContained().stream()
               .filter(x -> x instanceof org.hl7.fhir.r4.model.Library
-                      && x.getIdElement().getIdPart().equals("effective-data-requirements")
+                      && x.getIdElement().getValue().replace("#", "").equals("effective-data-requirements")
               ).findFirst();
       List<DataRequirement> dataRequirements;
       if (hasDataReqLibrary.isPresent()) {
@@ -145,6 +152,7 @@ public class MeasureDataRequirementService {
       for (DataRequirement dataRequirement: dataRequirements) {
          if (!dataRequirement.hasType()) continue;
          String fhirType = dataRequirement.getType().toCode();
+         if (fhirType == null || fhirType.isEmpty()) continue;
          result.computeIfAbsent(fhirType, x -> new HashMap<>());
          if (dataRequirement.hasProfile()) {
             profileMap.computeIfAbsent(fhirType, x -> new ArrayList<>());

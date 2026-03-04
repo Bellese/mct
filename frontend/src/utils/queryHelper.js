@@ -12,8 +12,12 @@ function timeout(ms, promise) {
 const createPeriodFromQuarter = (quarter) => {
   let start, end;
   // const currentYear = new Date().getFullYear();
-  const targetYear = '2022'
+  const targetYear = '2026'
   switch (quarter) {
+    case 'full-2026':
+      start = moment(`January 1, ${targetYear}`).startOf('year').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
+      end = moment(`December 31, ${targetYear}`).endOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
+      break;
     case 'q1':
       start = moment(`January 1, ${targetYear}`).startOf('quarter').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
       end = moment(`January 1, ${targetYear}`).endOf('quarter').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
