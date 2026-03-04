@@ -11,6 +11,7 @@ import org.hl7.fhir.r4.model.Period;
 import org.opencds.cqf.mct.SpringContext;
 import org.opencds.cqf.mct.config.MctConstants;
 import org.opencds.cqf.mct.service.GatherService;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

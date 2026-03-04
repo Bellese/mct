@@ -124,4 +124,7 @@ LogMessages.html
 
 core.*
 heapdump.*
-Snap.*
+Snap.*.DS_Store
+
+# Large demo measure bundles - not suitable for GitHub
+demo_measures/
