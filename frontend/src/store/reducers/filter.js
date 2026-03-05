@@ -4,7 +4,7 @@ const initialState = {
   organization: '',
   selectedFacilities: [],
   selectedPatients: [],
-  date: 'q1',
+  date: '2026',
   measure: '',
 
   openItem: ['dashboard'],
