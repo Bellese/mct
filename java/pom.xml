@@ -9,50 +9,19 @@
 	<description>Measure Calculation Tool</description>
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<java.version>11</java.version>
+		<java.version>17</java.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
-		<hapi.version>6.2.2</hapi.version>
-		<spring.version>5.3.29</spring.version>
-		<spring.boot.version>2.7.15</spring.boot.version>
-		<javax.version>3.1.0</javax.version>
-		<cql-evaluator.version>2.4.0</cql-evaluator.version>
-		<cql-translator.version>2.4.0</cql-translator.version>
-		<guava.version>31.1-jre</guava.version>
-		<json-smart.version>2.4.11</json-smart.version>
-		<engine-jackson.version>2.6.0</engine-jackson.version>
-		<org.hl7.fhir.utilities.version>5.6.76</org.hl7.fhir.utilities.version>
-		<snakeyaml.version>2.2</snakeyaml.version>
+		<hapi.version>8.8.0</hapi.version>
+		<spring.boot.version>3.2.5</spring.boot.version>
+		<clinical-reasoning.version>4.4.2</clinical-reasoning.version>
+		<guava.version>33.4.0-jre</guava.version>
 	</properties>
-	<repositories>
-		<repository>
-			<id>oss-sonatype</id>
-			<url>https://oss.sonatype.org/content/repositories/snapshots</url>
-			<snapshots>
-				<enabled>true</enabled>
-			</snapshots>
-		</repository>
-		<repository>
-			<id>oss-sonatype-public</id>
-			<url>https://oss.sonatype.org/content/groups/public/</url>
-		</repository>
-	</repositories>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-web</artifactId>
 			<version>${spring.boot.version}</version>
-		</dependency>
-		<!-- Added snakeyaml dependency to avoid vulnerability within spring-boot-starter-web 2.7.15. Remove when upgrading spring-boot-starter-web to a higher version. -->
-		<dependency>
-			<groupId>org.yaml</groupId>
-			<artifactId>snakeyaml</artifactId>
-			<version>${snakeyaml.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>org.springframework</groupId>
-			<artifactId>spring-web</artifactId>
-			<version>${spring.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>ca.uhn.hapi.fhir</groupId>
@@ -70,53 +39,49 @@
 			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
-			<!-- force 5.6.76 to get the fix to https://github.com/hapifhir/org.hl7.fhir.core/issues/961 -->
 			<groupId>ca.uhn.hapi.fhir</groupId>
-			<artifactId>org.hl7.fhir.utilities</artifactId>
-			<version>${org.hl7.fhir.utilities.version}</version>
+			<artifactId>hapi-fhir-validation</artifactId>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>javax.servlet</groupId>
-			<artifactId>javax.servlet-api</artifactId>
-			<version>${javax.version}</version>
-			<scope>provided</scope>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-validation-resources-r4</artifactId>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.opencds.cqf.cql</groupId>
-			<artifactId>evaluator.measure-hapi</artifactId>
-			<version>${cql-evaluator.version}</version>
+			<groupId>org.opencds.cqf.fhir</groupId>
+			<artifactId>cqf-fhir-cr</artifactId>
+			<version>${clinical-reasoning.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>org.opencds.cqf.cql</groupId>
-			<artifactId>evaluator.fhir</artifactId>
-			<version>${cql-evaluator.version}</version>
+			<groupId>org.opencds.cqf.fhir</groupId>
+			<artifactId>cqf-fhir-utility</artifactId>
+			<version>${clinical-reasoning.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>info.cqframework</groupId>
-			<artifactId>model-jackson</artifactId>
-			<version>${cql-translator.version}</version>
+			<groupId>org.opencds.cqf.fhir</groupId>
+			<artifactId>cqf-fhir-cql</artifactId>
+			<version>${clinical-reasoning.version}</version>
 		</dependency>
 		<dependency>
-			<groupId>info.cqframework</groupId>
-			<artifactId>elm-jackson</artifactId>
-			<version>${cql-translator.version}</version>
-		</dependency>
-		<dependency>
-			<groupId>info.cqframework</groupId>
-			<artifactId>engine-jackson</artifactId>
-			<version>${engine-jackson.version}</version>
+			<groupId>ca.uhn.hapi.fhir</groupId>
+			<artifactId>hapi-fhir-caching-caffeine</artifactId>
+			<version>${hapi.version}</version>
 		</dependency>
 		<dependency>
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${guava.version}</version>
 		</dependency>
-		<!-- Added json-smart dependency to avoid vulnerability within spring-boot-starter-test 2.7.15. Remove when upgrading spring-boot-starter-test to a higher version. -->
 		<dependency>
-			<groupId>net.minidev</groupId>
-			<artifactId>json-smart</artifactId>
-			<version>${json-smart.version}</version>
-			<scope>test</scope>
+			<groupId>jakarta.xml.bind</groupId>
+			<artifactId>jakarta.xml.bind-api</artifactId>
+			<version>4.0.2</version>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.jaxb</groupId>
+			<artifactId>jaxb-runtime</artifactId>
+			<version>4.0.5</version>
 		</dependency>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -136,7 +101,7 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>3.0.0-M7</version>
+				<version>3.2.5</version>
 			</plugin>
 		</plugins>
 	</build>

@@ -16,8 +16,8 @@ import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.opencds.cqf.cql.evaluator.fhir.util.r4.Parameters.parameters;
-import static org.opencds.cqf.cql.evaluator.fhir.util.r4.Parameters.part;
+import static org.opencds.cqf.mct.util.ParametersUtil.parameters;
+import static org.opencds.cqf.mct.util.ParametersUtil.part;
 
 /**
  * The Gather API.

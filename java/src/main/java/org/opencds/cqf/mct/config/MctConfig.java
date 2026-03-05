@@ -3,7 +3,7 @@ package org.opencds.cqf.mct.config;
 import ca.uhn.fhir.context.ConfigurationException;
 import ca.uhn.fhir.context.FhirContext;
 import ca.uhn.fhir.context.support.DefaultProfileValidationSupport;
-import ca.uhn.fhir.rest.client.api.IGenericClient;
+import ca.uhn.fhir.repository.IRepository;
 import ca.uhn.fhir.util.ClasspathUtil;
 import ca.uhn.fhir.validation.FhirValidator;
 import org.cqframework.cql.cql2elm.LibrarySourceProvider;
@@ -21,29 +21,14 @@ import org.opencds.cqf.cql.engine.fhir.model.R4FhirModelResolver;
 import org.opencds.cqf.cql.engine.fhir.retrieve.RestFhirRetrieveProvider;
 import org.opencds.cqf.cql.engine.fhir.searchparam.SearchParameterResolver;
 import org.opencds.cqf.cql.engine.model.ModelResolver;
-import org.opencds.cqf.cql.engine.retrieve.RetrieveProvider;
-import org.opencds.cqf.cql.engine.terminology.TerminologyProvider;
-import org.opencds.cqf.cql.evaluator.builder.DataProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.EndpointConverter;
-import org.opencds.cqf.cql.evaluator.builder.LibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.ModelResolverFactory;
-import org.opencds.cqf.cql.evaluator.builder.TerminologyProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.FhirDalFactory;
-import org.opencds.cqf.cql.evaluator.builder.dal.FhirFileFhirDalFactory;
-import org.opencds.cqf.cql.evaluator.builder.dal.FhirRestFhirDalFactory;
-import org.opencds.cqf.cql.evaluator.builder.dal.TypedFhirDalFactory;
-import org.opencds.cqf.cql.evaluator.builder.data.FhirModelResolverFactory;
-import org.opencds.cqf.cql.evaluator.builder.data.TypedRetrieveProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.FhirFileLibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.library.TypedLibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.terminology.FhirFileTerminologyProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.terminology.TypedTerminologyProviderFactory;
-import org.opencds.cqf.cql.evaluator.cql2elm.content.fhir.BundleFhirLibrarySourceProvider;
-import org.opencds.cqf.cql.evaluator.cql2elm.util.LibraryVersionSelector;
-import org.opencds.cqf.cql.evaluator.fhir.ClientFactory;
-import org.opencds.cqf.cql.evaluator.fhir.DirectoryBundler;
-import org.opencds.cqf.cql.evaluator.fhir.adapter.r4.AdapterFactory;
+import org.opencds.cqf.fhir.cql.cql2elm.content.RepositoryFhirLibrarySourceProvider;
+import org.opencds.cqf.fhir.cql.cql2elm.util.LibraryVersionSelector;
+import org.opencds.cqf.fhir.cr.measure.MeasureEvaluationOptions;
+import org.opencds.cqf.fhir.cr.measure.r4.R4MeasureProcessor;
+import org.opencds.cqf.fhir.utility.adapter.IAdapterFactory;
+import org.opencds.cqf.fhir.utility.repository.InMemoryFhirRepository;
 import org.opencds.cqf.mct.service.FacilityRegistrationService;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.opencds.cqf.mct.service.MeasureConfigurationService;
 import org.opencds.cqf.mct.service.PatientSelectorService;
 import org.opencds.cqf.mct.service.ReceivingSystemConfigurationService;
@@ -53,48 +38,12 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Set;
 
 @Configuration
 @Import({ MctProperties.class })
 public class MctConfig {
-
-   @Bean
-   public ClientFactory clientFactory(FhirContext fhirContext) {
-      return new ClientFactory(fhirContext);
-   }
-
-   @Bean
-   public DirectoryBundler directoryBundler(FhirContext fhirContext) {
-      return new DirectoryBundler(fhirContext);
-   }
-
-   @Bean
-   public Set<TypedTerminologyProviderFactory> typedTerminologyProviderFactories(
-           FhirContext fhirContext, DirectoryBundler directoryBundler) {
-      return Collections.singleton(new FhirFileTerminologyProviderFactory(fhirContext, directoryBundler));
-   }
-
-   @Bean
-   public TerminologyProviderFactory terminologyProviderFactory(
-           FhirContext fhirContext, Set<TypedTerminologyProviderFactory> typedTerminologyProviderFactories) {
-      return new org.opencds.cqf.cql.evaluator.builder.terminology.TerminologyProviderFactory(
-              fhirContext, typedTerminologyProviderFactories);
-   }
-
-   @Bean
-   public TerminologyProvider terminologyProvider(TerminologyProviderFactory terminologyProviderFactory, Bundle terminologyBundle) {
-      return terminologyProviderFactory.create(terminologyBundle);
-   }
-
-   @Bean
-   public Set<ModelResolverFactory> modelResolverFactories() {
-      return Collections.singleton(new FhirModelResolverFactory());
-   }
 
    @Bean
    public ModelResolver modelResolver() {
@@ -102,85 +51,45 @@ public class MctConfig {
    }
 
    @Bean
-   public Set<TypedRetrieveProviderFactory> typedRetrieveProviderFactories(
-           FhirContext fhirContext, ClientFactory clientFactory, ModelResolver modelResolver) {
-      return Collections.singleton(new TypedRetrieveProviderFactory() {
-         @Override
-         public String getType() {
-            return "hl7-fhir-rest";
-         }
-
-         @Override
-         public RetrieveProvider create(String url, List<String> headers) {
-            IGenericClient fhirClient = clientFactory.create(url, headers);
-            return new RestFhirRetrieveProvider(new SearchParameterResolver(fhirContext), modelResolver, fhirClient);
-         }
-      });
+   public DataProvider dataProvider(FhirContext fhirContext, ModelResolver modelResolver) {
+      RestFhirRetrieveProvider retrieveProvider = new RestFhirRetrieveProvider(
+              new SearchParameterResolver(fhirContext), modelResolver,
+              fhirContext.newRestfulGenericClient("http://localhost:8080/fhir"));
+      return new CompositeDataProvider(modelResolver, retrieveProvider);
    }
 
    @Bean
-   public DataProviderFactory dataProviderFactory(
-           FhirContext fhirContext, Set<ModelResolverFactory> modelResolverFactories,
-           Set<TypedRetrieveProviderFactory> typedRetrieveProviderFactories) {
-      return new org.opencds.cqf.cql.evaluator.builder.data.DataProviderFactory(
-              fhirContext, modelResolverFactories, typedRetrieveProviderFactories);
+   public IRepository contentRepository(FhirContext fhirContext, @Qualifier("measuresBundle") Bundle measuresBundle, @Qualifier("terminologyBundle") Bundle terminologyBundle) {
+      Bundle combined = new Bundle().setType(Bundle.BundleType.COLLECTION);
+      measuresBundle.getEntry().forEach(e -> combined.addEntry(e.copy()));
+      terminologyBundle.getEntry().forEach(e -> combined.addEntry(e.copy()));
+      return new InMemoryFhirRepository(fhirContext, combined);
    }
 
    @Bean
-   public DataProvider dataProvider(ModelResolver modelResolver, Set<TypedRetrieveProviderFactory> typedRetrieveProviderFactories) {
-      return new CompositeDataProvider(modelResolver, typedRetrieveProviderFactories.iterator().next().create("blah", null));
+   public MeasureEvaluationOptions measureEvaluationOptions() {
+      return MeasureEvaluationOptions.defaultOptions();
    }
 
    @Bean
-   public AdapterFactory adapterFactory() {
-      return new AdapterFactory();
+   public R4MeasureProcessor measureProcessor(IRepository contentRepository, MeasureEvaluationOptions measureEvaluationOptions) {
+      return new R4MeasureProcessor(contentRepository, measureEvaluationOptions);
    }
 
    @Bean
-   public LibraryVersionSelector libraryVersionSelector(AdapterFactory adapterFactory) {
+   public IAdapterFactory adapterFactory(FhirContext fhirContext) {
+      return IAdapterFactory.forFhirContext(fhirContext);
+   }
+
+   @Bean
+   public LibraryVersionSelector libraryVersionSelector(IAdapterFactory adapterFactory) {
       return new LibraryVersionSelector(adapterFactory);
    }
 
    @Bean
-   public Set<TypedLibrarySourceProviderFactory> librarySourceProviderFactories(
-           FhirContext fhirContext, DirectoryBundler directoryBundler, AdapterFactory adapterFactory,
-           LibraryVersionSelector libraryVersionSelector) {
-      return Collections.singleton(new FhirFileLibrarySourceProviderFactory(
-              fhirContext, directoryBundler, adapterFactory, libraryVersionSelector));
-   }
-
-   @Bean
-   public LibrarySourceProviderFactory librarySourceProviderFactory(
-           FhirContext fhirContext, AdapterFactory adapterFactory,
-           Set<TypedLibrarySourceProviderFactory> librarySourceProviderFactories,
-           LibraryVersionSelector libraryVersionSelector) {
-      return new org.opencds.cqf.cql.evaluator.builder.library.LibrarySourceProviderFactory(
-              fhirContext, adapterFactory, librarySourceProviderFactories, libraryVersionSelector);
-   }
-
-   @Bean
-   public Set<TypedFhirDalFactory> fileFhirDalFactories(FhirContext fhirContext, DirectoryBundler directoryBundler) {
-      return Collections.singleton(new FhirFileFhirDalFactory(fhirContext, directoryBundler));
-   }
-
-   @Bean
-   public Set<TypedFhirDalFactory> restFhirDalFactories(ClientFactory clientFactory) {
-      return Collections.singleton(new FhirRestFhirDalFactory(clientFactory));
-   }
-
-   @Bean
-   public FhirDalFactory fileFhirDalFactory(FhirContext fhirContext, Set<TypedFhirDalFactory> fileFhirDalFactories) {
-      return new org.opencds.cqf.cql.evaluator.builder.dal.FhirDalFactory(fhirContext, fileFhirDalFactories);
-   }
-
-   @Bean
-   public FhirDalFactory restFhirDalFactory(FhirContext fhirContext, Set<TypedFhirDalFactory> restFhirDalFactories) {
-      return new org.opencds.cqf.cql.evaluator.builder.dal.FhirDalFactory(fhirContext, restFhirDalFactories);
-   }
-
-   @Bean
-   public EndpointConverter endpointConverter(AdapterFactory adapterFactory) {
-      return new EndpointConverter(adapterFactory);
+   public LibrarySourceProvider repositoryFhirLibrarySourceProvider(
+           IRepository contentRepository, IAdapterFactory adapterFactory, LibraryVersionSelector libraryVersionSelector) {
+      return new RepositoryFhirLibrarySourceProvider(contentRepository, adapterFactory, libraryVersionSelector);
    }
 
    @Bean
@@ -287,10 +196,5 @@ public class MctConfig {
    public Bundle terminologyBundle(FhirContext fhirContext) {
       return fhirContext.newJsonParser().parseResource(Bundle.class,
               ClasspathUtil.loadResourceAsStream("classpath:configuration/terminology/terminology-bundle.json"));
-   }
-
-   @Bean
-   public LibrarySourceProvider bundleFhirLibrarySourceProvider(FhirContext fhirContext, Bundle measuresBundle, AdapterFactory adapterFactory, LibraryVersionSelector libraryVersionSelector) {
-      return new BundleFhirLibrarySourceProvider(fhirContext, measuresBundle, adapterFactory, libraryVersionSelector);
    }
 }

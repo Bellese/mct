@@ -1,20 +1,19 @@
 package org.opencds.cqf.mct.service;
 
-import ca.uhn.fhir.util.DateUtils;
+import ca.uhn.fhir.repository.IRepository;
 import org.hl7.fhir.r4.model.Bundle;
-import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.Group;
 import org.hl7.fhir.r4.model.Measure;
 import org.hl7.fhir.r4.model.MeasureReport;
 import org.hl7.fhir.r4.model.Period;
-import org.opencds.cqf.cql.evaluator.builder.DataProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.EndpointConverter;
-import org.opencds.cqf.cql.evaluator.builder.FhirDalFactory;
-import org.opencds.cqf.cql.evaluator.builder.LibrarySourceProviderFactory;
-import org.opencds.cqf.cql.evaluator.builder.TerminologyProviderFactory;
-import org.opencds.cqf.cql.evaluator.measure.r4.R4MeasureProcessor;
+import org.opencds.cqf.cql.engine.execution.CqlEngine;
+import org.opencds.cqf.fhir.cql.Engines;
+import org.opencds.cqf.fhir.cr.measure.MeasureEvaluationOptions;
+import org.opencds.cqf.fhir.cr.measure.r4.R4MeasureProcessor;
 import org.opencds.cqf.mct.SpringContext;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,9 +25,10 @@ public class MeasureEvaluationService {
    private final Measure measure;
    private final MeasureDataRequirementService measureDataRequirementService;
    private final R4MeasureProcessor measureProcessor;
-   private final String measurementPeriodStart;
-   private final String measurementPeriodEnd;
-   private final Endpoint configurationResourcesEndpoint;
+   private final IRepository contentRepository;
+   private final MeasureEvaluationOptions evaluationOptions;
+   private final ZonedDateTime periodStart;
+   private final ZonedDateTime periodEnd;
 
    /**
     * Instantiates a new Measure Evaluation Service.
@@ -39,17 +39,11 @@ public class MeasureEvaluationService {
    public MeasureEvaluationService(String measureId, Period period) {
       measure = SpringContext.getBean(MeasureConfigurationService.class).getMeasure(measureId);
       measureDataRequirementService = new MeasureDataRequirementService(measure);
-      measureProcessor = new R4MeasureProcessor(
-              SpringContext.getBean(TerminologyProviderFactory.class),
-              SpringContext.getBean(DataProviderFactory.class),
-              SpringContext.getBean(LibrarySourceProviderFactory.class),
-              SpringContext.getBean("fileFhirDalFactory", FhirDalFactory.class),
-              SpringContext.getBean(EndpointConverter.class)
-      );
-      measurementPeriodStart = DateUtils.convertDateToIso8601String(period.getStart());
-      measurementPeriodEnd = DateUtils.convertDateToIso8601String(period.getEnd());
-      configurationResourcesEndpoint = new Endpoint().setAddress(
-              SpringContext.getBean("pathToConfigurationResources", String.class));
+      measureProcessor = SpringContext.getBean(R4MeasureProcessor.class);
+      contentRepository = SpringContext.getBean(IRepository.class);
+      evaluationOptions = SpringContext.getBean(MeasureEvaluationOptions.class);
+      periodStart = period.getStart().toInstant().atZone(ZoneId.systemDefault());
+      periodEnd = period.getEnd().toInstant().atZone(ZoneId.systemDefault());
    }
 
    /**
@@ -103,8 +97,11 @@ public class MeasureEvaluationService {
     * @return the result of the $evaluate-measure operation (<a href="http://hl7.org/fhir/measurereport.html">MeasureReport</a>)
     */
    public MeasureReport evaluate(List<String> patientIds, Bundle patientData) {
-      return measureProcessor.evaluateMeasure(getMeasureUrl(), measurementPeriodStart, measurementPeriodEnd,
-              null, patientIds, null, configurationResourcesEndpoint,
-              configurationResourcesEndpoint, null, patientData);
+      CqlEngine engine = Engines.forRepository(
+              contentRepository,
+              evaluationOptions.getEvaluationSettings(),
+              patientData);
+      return measureProcessor.evaluateMeasure(
+              measure, periodStart, periodEnd, null, patientIds, null, engine, null);
    }
 }
