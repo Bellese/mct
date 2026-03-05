@@ -12,6 +12,9 @@ import org.opencds.cqf.fhir.cr.measure.MeasureEvaluationOptions;
 import org.opencds.cqf.fhir.cr.measure.r4.R4MeasureProcessor;
 import org.opencds.cqf.mct.SpringContext;
 
+import org.hl7.fhir.r4.model.Parameters;
+import org.opencds.cqf.fhir.cr.measure.common.CompositeEvaluationResultsPerMeasure;
+
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.Collections;
@@ -101,7 +104,12 @@ public class MeasureEvaluationService {
               contentRepository,
               evaluationOptions.getEvaluationSettings(),
               patientData);
+      CompositeEvaluationResultsPerMeasure compositeResults =
+              measureProcessor.evaluateMeasureWithCqlEngine(
+                      patientIds, measure, periodStart, periodEnd,
+                      new Parameters(), engine);
       return measureProcessor.evaluateMeasure(
-              measure, periodStart, periodEnd, null, patientIds, null, engine, null);
+              measure, periodStart, periodEnd, null, patientIds, null,
+              engine, compositeResults);
    }
 }

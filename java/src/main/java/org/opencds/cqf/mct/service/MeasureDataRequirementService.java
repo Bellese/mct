@@ -92,10 +92,14 @@ public class MeasureDataRequirementService {
                  if (key.equals("Patient")) {
                     value.put("_id", Collections.singletonList(new StringParam(patientId)));
                  } else {
-                    SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
-                            patientParam -> value.put(patientParam.getName(),
-                                    Collections.singletonList(new ReferenceParam(patientId)))
-                    );
+                    try {
+                       SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
+                               patientParam -> value.put(patientParam.getName(),
+                                       Collections.singletonList(new ReferenceParam(patientId)))
+                       );
+                    } catch (IllegalArgumentException e) {
+                       // Resource type is not in the patient compartment (e.g. Medication, Location) - skip
+                    }
                  }
               }
       );
