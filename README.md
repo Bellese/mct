@@ -48,3 +48,16 @@ For feedback and questions please submit an issue to this repository or on the [
 1. Select the patients you would like to include in the report
 1. Select the date range (or measurement period) - NOTE that the current test only works with Q1
 1. Select the Get Report button - the current performance is ~1 sec per patient (so ~100 sec for the single-facility and ~200 sec for the multiple-facility).
+
+### API Documentation
+This project uses HAPI FHIR's OpenAPI implementation to expose interactive API documentation via Swagger UI.
+
+#### Accessing Swagger UI
+Once the stack is running, navigate to:
+```text
+http://localhost:8088/mct/swagger-ui/
+```
+The raw OpenAPI 3.0 specification is available at:
+```text
+http://localhost:8088/mct/api-docs
+```

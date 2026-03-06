@@ -1,6 +1,7 @@
 package org.opencds.cqf.mct;
 
 import ca.uhn.fhir.context.FhirContext;
+import ca.uhn.fhir.rest.openapi.OpenApiInterceptor;
 import ca.uhn.fhir.rest.server.RestfulServer;
 import ca.uhn.fhir.rest.server.interceptor.CorsInterceptor;
 import org.opencds.cqf.mct.api.FacilityRegistrationAPI;
@@ -65,6 +66,8 @@ public class MctApplication extends SpringBootServletInitializer {
 		fhirServer.registerProvider(new GeneratePatientDataAPI());
 		fhirServer.registerProvider(new PatientSelectorAPI());
 		fhirServer.registerProvider(new SubmitAPI());
+		fhirServer.registerInterceptor(new OpenApiInterceptor());
+
 		return fhirServer;
 	}
 
