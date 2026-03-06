@@ -14,6 +14,10 @@ const createPeriodFromQuarter = (quarter) => {
   // const currentYear = new Date().getFullYear();
   const targetYear = '2022'
   switch (quarter) {
+    case '2026':
+      start = moment('January 1, 2026').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
+      end = moment('December 31, 2026').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
+      break;
     case 'q1':
       start = moment(`January 1, ${targetYear}`).startOf('quarter').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
       end = moment(`January 1, ${targetYear}`).endOf('quarter').startOf('day').format('YYYY-MM-DDTHH:mm:ssZ');
