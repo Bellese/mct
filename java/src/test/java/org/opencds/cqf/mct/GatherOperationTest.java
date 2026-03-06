@@ -17,8 +17,8 @@ import org.springframework.context.annotation.Import;
 import java.util.Collections;
 import java.util.Date;
 
-import static org.opencds.cqf.cql.evaluator.fhir.util.r4.Parameters.parameters;
-import static org.opencds.cqf.cql.evaluator.fhir.util.r4.Parameters.part;
+import static org.opencds.cqf.mct.util.ParametersUtil.parameters;
+import static org.opencds.cqf.mct.util.ParametersUtil.part;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 

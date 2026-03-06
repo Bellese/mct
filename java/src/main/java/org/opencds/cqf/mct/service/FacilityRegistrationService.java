@@ -1,34 +1,30 @@
 package org.opencds.cqf.mct.service;
 
-import ca.uhn.fhir.context.FhirContext;
-import org.apache.commons.collections4.IterableUtils;
 import org.hl7.fhir.exceptions.FHIRException;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Endpoint;
 import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.Organization;
 import org.hl7.fhir.r4.model.Resource;
-import org.opencds.cqf.cql.evaluator.engine.retrieve.BundleRetrieveProvider;
 import org.opencds.cqf.mct.SpringContext;
 import org.opencds.cqf.mct.api.FacilityRegistrationAPI;
 import org.opencds.cqf.mct.config.MctConstants;
+import org.opencds.cqf.mct.util.BundleHelper;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * The Facility Registration Service used by the {@link org.opencds.cqf.mct.api.FacilityRegistrationAPI}.
  */
 public class FacilityRegistrationService {
 
-   private final BundleRetrieveProvider bundleRetrieveProvider;
+   private final Bundle facilitiesBundle;
 
    /**
     * Instantiates a new Facility Registration Service.
     */
    public FacilityRegistrationService() {
-      bundleRetrieveProvider = new BundleRetrieveProvider(
-              SpringContext.getBean(FhirContext.class),
-              SpringContext.getBean("facilitiesBundle", Bundle.class));
+      facilitiesBundle = SpringContext.getBean("facilitiesBundle", Bundle.class);
    }
 
    /**
@@ -39,9 +35,8 @@ public class FacilityRegistrationService {
     */
    public Bundle listOrganizations() {
       Bundle orgs = new Bundle().setType(Bundle.BundleType.COLLECTION);
-      bundleRetrieveProvider.retrieve(null, null, null, "Organization",
-              null, null, null, null, null, null,
-              null, null).forEach(x -> orgs.addEntry().setResource((Resource) x));
+      BundleHelper.listResources(facilitiesBundle, Organization.class)
+              .forEach(x -> orgs.addEntry().setResource(x));
       return orgs;
    }
 
@@ -68,21 +63,13 @@ public class FacilityRegistrationService {
     * or the configured facilities referencing the <a href="http://hl7.org/fhir/organization.html">Organization</a>
     */
    public List<Location> getLocations(String organizationId) {
-      Iterable<Object> results;
       if (organizationId == null) {
-         results = bundleRetrieveProvider.retrieve(null, null, null,
-                 "Location", null, null, null, null,
-                 null, null, null, null);
+         return BundleHelper.listResources(facilitiesBundle, Location.class);
       }
-      else {
-         if (organizationId.startsWith("Organization/")) {
-            organizationId = organizationId.replace("Organization/", "");
-         }
-         results = bundleRetrieveProvider.retrieve("Organization", "managingOrganization",
-                 organizationId, "Location", null, null, null, null,
-                 null, null, null, null);
+      if (organizationId.startsWith("Organization/")) {
+         organizationId = organizationId.replace("Organization/", "");
       }
-      return IterableUtils.toList(results).stream().map(Location.class::cast).collect(Collectors.toList());
+      return BundleHelper.filterLocationsByOrganization(facilitiesBundle, organizationId);
    }
 
    /**
@@ -95,11 +82,7 @@ public class FacilityRegistrationService {
       if (locationId.startsWith("Location/")) {
          locationId = locationId.replace("Location/", "");
       }
-      Iterable<Object> results = bundleRetrieveProvider.retrieve("Location", "id",
-              locationId, "Location", null, null, null, null,
-              null, null, null, null);
-      Object result = results.iterator().hasNext() ? results.iterator().next() : null;
-      return (Location) result;
+      return BundleHelper.findById(facilitiesBundle, Location.class, locationId);
    }
 
    /**

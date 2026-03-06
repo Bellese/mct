@@ -5,12 +5,10 @@ import ca.uhn.fhir.model.api.IQueryParameterType;
 import ca.uhn.fhir.rest.param.ReferenceParam;
 import ca.uhn.fhir.rest.param.StringParam;
 import ca.uhn.fhir.util.SearchParameterUtil;
-import org.cqframework.cql.cql2elm.CqlTranslatorOptions;
+import org.cqframework.cql.cql2elm.CqlCompilerOptions;
 import org.cqframework.cql.cql2elm.LibraryManager;
-import org.cqframework.cql.cql2elm.LibrarySourceLoader;
 import org.cqframework.cql.cql2elm.LibrarySourceProvider;
 import org.cqframework.cql.cql2elm.ModelManager;
-import org.cqframework.cql.cql2elm.PriorityLibrarySourceLoader;
 import org.cqframework.cql.cql2elm.model.CompiledLibrary;
 import org.hl7.elm.r1.VersionedIdentifier;
 import org.hl7.fhir.convertors.advisors.impl.BaseAdvisor_40_50;
@@ -21,7 +19,7 @@ import org.hl7.fhir.r5.model.DataRequirement;
 import org.hl7.fhir.r5.model.Library;
 import org.opencds.cqf.cql.engine.terminology.ValueSetInfo;
 import org.opencds.cqf.mct.SpringContext;
-import org.opencds.cqf.mct.processor.DataRequirementsProcessor;
+import org.cqframework.cql.elm.requirements.fhir.DataRequirementsProcessor;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -83,7 +81,7 @@ public class MeasureDataRequirementService {
    /**
     * Gets search parameter map for the specified patient.
     *
-    * @see FacilityDataService#getPatientData(MeasureDataRequirementService, GatherService.PatientBundle) 
+    * @see FacilityDataService#getPatientData(MeasureDataRequirementService, GatherService.PatientBundle)
     * @param patientId the patient id
     * @return the patient-specific search parameter map
     */
@@ -94,10 +92,14 @@ public class MeasureDataRequirementService {
                  if (key.equals("Patient")) {
                     value.put("_id", Collections.singletonList(new StringParam(patientId)));
                  } else {
-                    SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
-                            patientParam -> value.put(patientParam.getName(),
-                                    Collections.singletonList(new ReferenceParam(patientId)))
-                    );
+                    try {
+                       SearchParameterUtil.getOnlyPatientSearchParamForResourceType(fhirContext, key).ifPresent(
+                               patientParam -> value.put(patientParam.getName(),
+                                       Collections.singletonList(new ReferenceParam(patientId)))
+                       );
+                    } catch (IllegalArgumentException e) {
+                       // Resource type is not in the patient compartment (e.g. Medication, Location) - skip
+                    }
                  }
               }
       );
@@ -106,17 +108,15 @@ public class MeasureDataRequirementService {
 
    private Library getDataRequirementLibrary() {
       DataRequirementsProcessor processor = new DataRequirementsProcessor();
-      LibraryManager libraryManager = new LibraryManager(new ModelManager());
-      LibrarySourceLoader librarySourceLoader = new PriorityLibrarySourceLoader();
-      librarySourceLoader.registerProvider(SpringContext.getBean(LibrarySourceProvider.class));
-      libraryManager.setLibrarySourceLoader(librarySourceLoader);
-      CqlTranslatorOptions options = CqlTranslatorOptions.defaultOptions();
+      CqlCompilerOptions compilerOptions = CqlCompilerOptions.defaultOptions();
+      LibraryManager libraryManager = new LibraryManager(new ModelManager(), compilerOptions);
+      libraryManager.getLibrarySourceLoader().registerProvider(SpringContext.getBean(LibrarySourceProvider.class));
       CompiledLibrary library = libraryManager.resolveLibrary(
               new VersionedIdentifier()
                       .withId("DischargedonAntithromboticTherapyQICore4")
-                      .withVersion("0.0.006"), options, new ArrayList<>()
+                      .withVersion("0.0.006"), new ArrayList<>()
       );
-      return processor.gatherDataRequirements(libraryManager, library, options, null, true, true);
+      return processor.gatherDataRequirements(libraryManager, library, compilerOptions, null, true, true);
    }
 
    private List<DataRequirement> getDataRequirements() {

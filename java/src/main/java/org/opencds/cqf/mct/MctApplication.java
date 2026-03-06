@@ -15,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.config.AutowireCapableBeanFactory;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.elasticsearch.ElasticsearchRestClientAutoConfiguration;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.servlet.ServletComponentScan;
 import org.springframework.boot.web.servlet.ServletRegistrationBean;
@@ -27,7 +26,7 @@ import org.springframework.web.cors.CorsConfiguration;
 import java.util.Arrays;
 
 @ServletComponentScan(basePackageClasses = { RestfulServer.class })
-@SpringBootApplication(exclude = { ElasticsearchRestClientAutoConfiguration.class })
+@SpringBootApplication
 @Import({ MctProperties.class })
 public class MctApplication extends SpringBootServletInitializer {
 

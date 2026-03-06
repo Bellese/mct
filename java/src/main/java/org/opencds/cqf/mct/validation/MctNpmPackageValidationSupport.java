@@ -3,7 +3,6 @@ package org.opencds.cqf.mct.validation;
 import ca.uhn.fhir.context.FhirContext;
 import org.hl7.fhir.common.hapi.validation.support.PrePopulatedValidationSupport;
 import org.hl7.fhir.instance.model.api.IBaseResource;
-import org.hl7.fhir.utilities.TextFile;
 import org.hl7.fhir.utilities.npm.NpmPackage;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +54,7 @@ public class MctNpmPackageValidationSupport extends PrePopulatedValidationSuppor
    private void loadBinariesFromPackage(NpmPackage thePackage) throws IOException {
       List<String> binaries = thePackage.list("other");
       for (String binaryName : binaries) {
-         addBinary(TextFile.streamToBytes(thePackage.load("other", binaryName)), binaryName);
+         addBinary(thePackage.load("other", binaryName).readAllBytes(), binaryName);
       }
    }
 }
