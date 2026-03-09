@@ -1,7 +1,8 @@
-import { DashboardOutlined } from '@ant-design/icons';
+import { DashboardOutlined, SettingOutlined } from '@ant-design/icons';
 
 const icons = {
-  DashboardOutlined
+  DashboardOutlined,
+  SettingOutlined
 };
 
 const dashboard = {
@@ -15,6 +16,14 @@ const dashboard = {
       type: 'item',
       url: '/dashboard/default',
       icon: icons.DashboardOutlined,
+      breadcrumbs: false
+    },
+    {
+      id: 'admin',
+      title: 'Admin',
+      type: 'item',
+      url: '/admin',
+      icon: icons.SettingOutlined,
       breadcrumbs: false
     }
   ]
