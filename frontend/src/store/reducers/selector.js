@@ -11,8 +11,3 @@ export const getMeasure = (state) => {
   return measures.find((i) => i.id === measure);
 };
 
-export const getOrganization = (state) => {
-  const { organizations } = state.data;
-  const { organization: organizationId } = state.filter;
-  return organizations.find((organization) => organization.id === organizationId);
-};
