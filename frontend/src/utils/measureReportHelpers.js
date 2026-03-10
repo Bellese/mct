@@ -148,11 +148,14 @@ const populationGather = (measureReport) => {
     }
   };
 
-  // Parse for gender
+  // Parse for gender from contained SDE observations
+  // Codes may be "M"/"F" or SNOMED codes (248153007=Male, 248152002=Female)
+  const genderCodeMap = { M: 'M', F: 'F', '248153007': 'M', '248152002': 'F' };
   measureReport?.contained?.forEach((data) => {
-    const code = data.code.coding.find((i) => i.code);
-    if (population.gender[code?.code] !== undefined) {
-      population.gender[code?.code] = data.valueInteger;
+    const code = data.code?.coding?.find((i) => i.code)?.code;
+    const mappedGender = genderCodeMap[code];
+    if (mappedGender && data.valueInteger !== undefined) {
+      population.gender[mappedGender] = data.valueInteger;
     }
   });
 
