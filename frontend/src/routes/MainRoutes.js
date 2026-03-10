@@ -6,6 +6,7 @@ import MainLayout from 'layout/MainLayout';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
+const AdminPage = Loadable(lazy(() => import('pages/admin')));
 
 const MainRoutes = {
   path: '/',
@@ -23,6 +24,10 @@ const MainRoutes = {
           element: <DashboardDefault />
         }
       ]
+    },
+    {
+      path: 'admin',
+      element: <AdminPage />
     }
   ]
 };
