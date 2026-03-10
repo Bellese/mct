@@ -114,7 +114,7 @@
           "value": "Facility_A"
         }],
         "status": "active",
-        "name": "Facility A",
+        "name": "Facility A - Single",
         "mode": "instance",
         "managingOrganization": {
           "reference": "Organization/acme-local-test-org"
@@ -154,7 +154,7 @@
           "value": "Facility_A"
         }],
         "status": "active",
-        "name": "Facility A",
+        "name": "Facility A - Multi",
         "mode": "instance",
         "managingOrganization": {
           "reference": "Organization/acme"

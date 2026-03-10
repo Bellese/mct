@@ -7,7 +7,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { inputSelection } from 'store/reducers/filter';
 import { fetchFacilityPatients } from 'store/reducers/data';
 
-const FacilitiesMultiSelect = ({ facilities }) => {
+const FacilitiesSingleSelect = ({ facilities }) => {
   const dispatch = useDispatch();
   const { selectedFacilities } = useSelector((state) => state.filter);
   const selectedFacility = selectedFacilities?.[0] || '';
@@ -47,4 +47,4 @@ const FacilitiesMultiSelect = ({ facilities }) => {
   );
 };
 
-export default FacilitiesMultiSelect;
+export default FacilitiesSingleSelect;

@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 import PatientMultiSelect from 'components/PatientMultiSelect';
 import { executeGatherOperation } from 'store/reducers/data';
 import { SendOutlined } from '@ant-design/icons';
-import FacilitiesMultiSelect from 'components/FacilitiesMultiSelect';
+import FacilitiesSingleSelect from 'components/FacilitiesSingleSelect';
 const dateOptions = [
   {
     id: '2026',
@@ -62,7 +62,7 @@ const HeaderContent = () => {
           minWidth: 200
         }}
       >
-        <FacilitiesMultiSelect facilities={facilities} />
+        <FacilitiesSingleSelect facilities={facilities} />
       </FormControl>
       <FormControl
         required

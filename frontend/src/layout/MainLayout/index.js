@@ -8,7 +8,7 @@ import Header from './Header';
 import navigation from 'menu-items';
 import Breadcrumbs from 'components/@extended/Breadcrumbs';
 import { openDrawer } from 'store/reducers/filter';
-import { fetchOrganizations, fetchFacilities, fetchMeasures } from 'store/reducers/data';
+import { fetchFacilities, fetchMeasures } from 'store/reducers/data';
 import LoadingPage from 'components/LoadingPage';
 import { isEqual } from 'lodash';
 
@@ -37,10 +37,11 @@ const MainLayout = () => {
     if (open !== drawerOpen) setOpen(drawerOpen);
   }, [drawerOpen]);
 
+  // To re-enable organization selection: import fetchOrganizations, dispatch it when
+  // status === 'idle', then dispatch fetchFacilities/fetchMeasures when status === 'succeeded'.
+  // See OrganizationSelection.js and the fetchOrganizations thunk in store/reducers/data.js.
   useEffect(() => {
     if (status === 'idle') {
-      dispatch(fetchOrganizations());
-    } else if (status === 'succeeded') {
       dispatch(fetchMeasures());
       dispatch(fetchFacilities());
     }

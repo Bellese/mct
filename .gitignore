@@ -126,6 +126,9 @@ core.*
 heapdump.*
 Snap.*
 
+# Demo measure bundles (too large for git)
+demo_measures/
+
 # Claude
 .claude/
 
