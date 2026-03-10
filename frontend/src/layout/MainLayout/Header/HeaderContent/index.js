@@ -6,7 +6,7 @@ import { Button } from '@mui/material';
 import PatientMultiSelect from 'components/PatientMultiSelect';
 import { executeGatherOperation } from 'store/reducers/data';
 import { SendOutlined } from '@ant-design/icons';
-import FacilitiesMultiSelect from 'components/FacilitiesMultiSelect';
+import FacilitiesSingleSelect from 'components/FacilitiesSingleSelect';
 const dateOptions = [
   {
     id: '2026',
@@ -31,8 +31,8 @@ const dateOptions = [
 ];
 
 const HeaderContent = () => {
-  const { date, facility } = useSelector((state) => state.filter);
-  const { facilities, patients } = useSelector((state) => state.data);
+  const { date, measure } = useSelector((state) => state.filter);
+  const { facilities, patients, measures } = useSelector((state) => state.data);
 
   const dispatch = useDispatch();
 
@@ -45,7 +45,15 @@ const HeaderContent = () => {
           minWidth: 200
         }}
       >
-        <PatientMultiSelect patients={patients} />
+        <Selection
+          options={measures}
+          label="Measures"
+          targetDisplayField="title"
+          currentSelection={measure}
+          handleChange={(newMeasure) => {
+            dispatch(inputSelection({ type: 'measure', value: newMeasure }));
+          }}
+        />
       </FormControl>
       <FormControl
         required
@@ -54,7 +62,16 @@ const HeaderContent = () => {
           minWidth: 200
         }}
       >
-        <FacilitiesMultiSelect facilities={facilities} />
+        <FacilitiesSingleSelect facilities={facilities} />
+      </FormControl>
+      <FormControl
+        required
+        sx={{
+          m: 1,
+          minWidth: 200
+        }}
+      >
+        <PatientMultiSelect patients={patients} />
       </FormControl>
       <FormControl
         required

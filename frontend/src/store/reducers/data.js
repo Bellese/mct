@@ -19,11 +19,10 @@ export const fetchOrganizations = createAsyncThunk('data/fetchOrganizations', as
   return organizationBundle.entry.map((i) => i.resource);
 });
 
-export const fetchFacilities = createAsyncThunk('data/fetchFacilities', async (organizationId, { dispatch }) => {
-  const facilityBundle = await fetch(`${baseUrl}/mct/$list-facilities?organization=${organizationId}`).then((res) => res.json());
-  await new Promise((r) => setTimeout(r, 1000));
+export const fetchFacilities = createAsyncThunk('data/fetchFacilities', async (_, { dispatch }) => {
+  const facilityBundle = await fetch(`${baseUrl}/mct/$list-facilities`).then((res) => res.json());
   const mappedFacilities = facilityBundle.entry.map((i) => i.resource);
-  const firstFacility = mappedFacilities?.[0]?.id; // set first one as default
+  const firstFacility = mappedFacilities?.[0]?.id;
   dispatch(inputSelection({ type: 'selectedFacilities', value: [firstFacility] }));
   dispatch(fetchFacilityPatients());
   return mappedFacilities;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import { useSelector } from 'react-redux';
 import { summarizeMeasureReport } from 'utils/measureReportHelpers';
 import { Typography, Grid, Stack, Button, Dialog, Box, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
-import { getFacility, getOrganization } from 'store/reducers/selector';
+import { getFacility } from 'store/reducers/selector';
 import SeverityIcon from './SeverityIcon';
 import { baseUrl, cqfServerUrl } from 'config';
 import LoadingButton from '@mui/lab/LoadingButton';
@@ -11,7 +11,6 @@ export default function AlertDialog({ isVisible, setVisibility, setStatusMessage
   const [loading, setLoading] = React.useState(false);
   const { measureReport } = useSelector((state) => state.data);
   const facilities = useSelector((state) => getFacility(state));
-  const organization = useSelector((state) => getOrganization(state));
   const summaryStats = summarizeMeasureReport(measureReport);
 
   const handleClose = ({ isSubmit }) => {
@@ -22,7 +21,7 @@ export default function AlertDialog({ isVisible, setVisibility, setStatusMessage
   };
   const handleSubmit = async () => {
     setLoading(true);
-    await fetch(`${baseUrl}/mct/$submit?organization=${organization?.id}`, {
+    await fetch(`${baseUrl}/mct/$submit`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -55,10 +54,7 @@ export default function AlertDialog({ isVisible, setVisibility, setStatusMessage
         </DialogTitle>
         <DialogContent>
           <DialogContentText sx={{ display: 'flex' }} id="alert-dialog-description">
-            <Typography variant="subtitle2"> Are you sure you want to submit Measure Report for </Typography>
-            <Typography variant="subtitle2" sx={{ ml: 0.25 }} color={'primary.main'}>
-              {organization?.name}
-            </Typography>
+            <Typography variant="subtitle2"> Are you sure you want to submit this Measure Report?</Typography>
           </DialogContentText>
           <Grid container>
             <Grid sx={{ display: 'flex', justifyContent: 'center' }} item xs={12}>
