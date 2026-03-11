@@ -11,6 +11,7 @@ import { MenuFoldOutlined, MenuUnfoldOutlined, CloudUploadOutlined } from '@ant-
 import AppBarStyled from './AppBarStyled';
 import HeaderContent from './HeaderContent';
 import AlertDialog from 'components/AlertDialog';
+import { useLocation } from '../../../../node_modules/react-router-dom/dist/index';
 
 const Alert = forwardRef(function Alert(props, ref) {
   return <MuiAlert elevation={6} ref={ref} variant="filled" {...props} />;
@@ -18,6 +19,7 @@ const Alert = forwardRef(function Alert(props, ref) {
 
 const Header = ({ open, handleDrawerToggle }) => {
   const theme = useTheme();
+  const location = useLocation();
   const [openSubmitPrompt, setOpenSubmitPrompt] = useState(false);
   const [isStatusMessageVisible, setIsStatusMessageVisible] = useState(false);
   const matchDownMD = useMediaQuery(theme.breakpoints.down('lg'));
@@ -46,7 +48,7 @@ const Header = ({ open, handleDrawerToggle }) => {
       >
         {!open ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
       </IconButton>
-      <HeaderContent />
+      {location.pathname !== '/admin/clinical-data-sources' && <HeaderContent />}
       <Snackbar
         open={isStatusMessageVisible}
         autoHideDuration={3000}

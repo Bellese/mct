@@ -3,6 +3,8 @@ package org.opencds.cqf.mct.api;
 import ca.uhn.fhir.rest.annotation.Operation;
 import ca.uhn.fhir.rest.annotation.OperationParam;
 import org.hl7.fhir.r4.model.Bundle;
+import org.hl7.fhir.r4.model.Location;
+import org.hl7.fhir.r4.model.OperationOutcome;
 import org.opencds.cqf.mct.SpringContext;
 import org.opencds.cqf.mct.config.MctConstants;
 import org.opencds.cqf.mct.service.FacilityRegistrationService;
@@ -39,5 +41,38 @@ public class FacilityRegistrationAPI {
    @Operation(name = MctConstants.LIST_FACILITIES_OPERATION_NAME, idempotent = true)
    public Bundle listFacilities(@OperationParam(name = MctConstants.LIST_FACILITIES_PARAM) String organizationId) {
       return facilityRegistrationService.listFacilities(organizationId);
+   }
+
+   /**
+    * The $register-facility operation. Adds a new facility and persists the bundle.
+    *
+    * @param facility the <a href="http://hl7.org/fhir/location.html">Location</a> resource to register
+    * @return an OperationOutcome confirming success
+    */
+   @Operation(name = MctConstants.REGISTER_FACILITY_OPERATION_NAME)
+   public OperationOutcome registerFacility(@OperationParam(name = MctConstants.FACILITY_PARAM) Location facility) {
+      return facilityRegistrationService.registerFacility(facility);
+   }
+
+   /**
+    * The $update-facility operation. Updates an existing facility and persists the bundle.
+    *
+    * @param facility the <a href="http://hl7.org/fhir/location.html">Location</a> resource with updated fields
+    * @return an OperationOutcome confirming success
+    */
+   @Operation(name = MctConstants.UPDATE_FACILITY_OPERATION_NAME)
+   public OperationOutcome updateFacility(@OperationParam(name = MctConstants.FACILITY_PARAM) Location facility) {
+      return facilityRegistrationService.updateFacility(facility);
+   }
+
+   /**
+    * The $delete-facility operation. Removes a facility and persists the bundle.
+    *
+    * @param facilityId the id of the facility to remove
+    * @return an OperationOutcome confirming success
+    */
+   @Operation(name = MctConstants.DELETE_FACILITY_OPERATION_NAME)
+   public OperationOutcome deleteFacility(@OperationParam(name = MctConstants.FACILITY_ID_PARAM) String facilityId) {
+      return facilityRegistrationService.deleteFacility(facilityId);
    }
 }

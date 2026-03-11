@@ -72,6 +72,74 @@ export const executeGatherOperation = createAsyncThunk('data/gatherOperation', a
   return measureReportJson;
 });
 
+const buildLocationResource = ({ id, name, url }) => {
+  const locationId = id || name.toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9-]/g, '');
+  const endpointId = `${locationId}-endpoint`;
+  return {
+    resourceType: 'Location',
+    id: locationId,
+    name,
+    status: 'active',
+    mode: 'instance',
+    contained: [
+      {
+        resourceType: 'Endpoint',
+        id: endpointId,
+        status: 'active',
+        connectionType: {
+          system: 'http://terminology.hl7.org/CodeSystem/endpoint-connection-type',
+          code: 'hl7-fhir-rest'
+        },
+        payloadType: [{ coding: [{ system: 'http://terminology.hl7.org/CodeSystem/endpoint-payload-type', code: 'any' }] }],
+        payloadMimeType: ['application/fhir+json'],
+        address: url
+      }
+    ],
+    endpoint: [{ reference: `#${endpointId}` }]
+  };
+};
+
+const extractErrorMessage = async (res, fallback) => {
+  try {
+    const body = await res.json();
+    return body?.issue?.[0]?.diagnostics || fallback;
+  } catch {
+    return fallback;
+  }
+};
+
+export const addFacility = createAsyncThunk('data/addFacility', async (facilityData) => {
+  const location = buildLocationResource(facilityData);
+  const res = await fetch(`${baseUrl}/mct/$register-facility`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resourceType: 'Parameters', parameter: [{ name: 'facility', resource: location }] })
+  });
+  if (!res.ok) throw new Error(await extractErrorMessage(res, 'Failed to add facility'));
+  return location;
+});
+
+export const updateFacility = createAsyncThunk('data/updateFacility', async (facilityData) => {
+  const location = buildLocationResource(facilityData);
+  const res = await fetch(`${baseUrl}/mct/$update-facility`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resourceType: 'Parameters', parameter: [{ name: 'facility', resource: location }] })
+  });
+  if (!res.ok) throw new Error(await extractErrorMessage(res, 'Failed to update facility'));
+  return location;
+});
+
+export const removeFacility = createAsyncThunk('data/removeFacility', async (facilityId) => {
+  const res = await fetch(`${baseUrl}/mct/$delete-facility`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ resourceType: 'Parameters', parameter: [{ name: 'facilityId', valueString: facilityId }] })
+  });
+  if (!res.ok) throw new Error(await extractErrorMessage(res, 'Failed to remove facility'));
+  return facilityId;
+});
+
 const buildMeasurePayload = (facilityIds, measureId, quarter, patients) => {
   const period = createPeriodFromQuarter(quarter);
   const groupPatientResource = {
@@ -178,6 +246,21 @@ const data = createSlice({
       })
       .addCase(executeGatherOperation.fulfilled, (state, action) => {
         state.measureReport = action.payload;
+      });
+
+    builder
+      .addCase(addFacility.fulfilled, (state, action) => {
+        state.facilities = [...state.facilities, action.payload];
+      });
+
+    builder
+      .addCase(updateFacility.fulfilled, (state, action) => {
+        state.facilities = state.facilities.map((f) => f.id === action.payload.id ? action.payload : f);
+      });
+
+    builder
+      .addCase(removeFacility.fulfilled, (state, action) => {
+        state.facilities = state.facilities.filter((f) => f.id !== action.payload);
       });
   }
 });

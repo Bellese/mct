@@ -2,7 +2,6 @@ import InputLabel from '@mui/material/InputLabel';
 import MenuItem from '@mui/material/MenuItem';
 import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
-import OutlinedInput from '@mui/material/OutlinedInput';
 import { useDispatch, useSelector } from 'react-redux';
 import { inputSelection } from 'store/reducers/filter';
 import { fetchFacilityPatients } from 'store/reducers/data';
@@ -24,26 +23,16 @@ const FacilitiesSingleSelect = ({ facilities }) => {
     .filter((facility, index, self) => self.findIndex((f) => f.id === facility.id) === index);
 
   return (
-    <div>
-      <FormControl required sx={{ width: 300 }}>
-        <InputLabel sx={{ p: '1px' }} id="facility-select-label">
-          Facilities
-        </InputLabel>
-        <Select
-          labelId="facility-select-label"
-          id="facility-select"
-          value={selectedFacility}
-          onChange={handleChange}
-          input={<OutlinedInput id="select-facility" label="Facilities" />}
-        >
-          {facilityEntries?.map(({ id, name }, index) => (
-            <MenuItem key={id + '_' + index} value={id}>
-              {name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </div>
+    <FormControl required variant="standard" fullWidth>
+      <InputLabel id="facility-select-label">Clinical Data Source</InputLabel>
+      <Select labelId="facility-select-label" id="facility-select" value={selectedFacility} onChange={handleChange}>
+        {facilityEntries?.map(({ id, name }, index) => (
+          <MenuItem key={id + '_' + index} value={id}>
+            {name}
+          </MenuItem>
+        ))}
+      </Select>
+    </FormControl>
   );
 };
 
