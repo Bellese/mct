@@ -5,7 +5,6 @@ import { InfoCircleOutlined } from '@ant-design/icons';
 import { useSelector } from 'react-redux';
 import { getMeasure } from 'store/reducers/selector';
 import PopulationStatistics from './PopulationStatistics';
-import PatientColumnChart from './PatientColumnChart';
 import MainCard from 'components/MainCard';
 import MeasureReportPopulationData from './MeasureReportPopulationData';
 const PopulationMeasureReport = ({ processedMeasureReport }) => {
@@ -40,18 +39,6 @@ const PopulationMeasureReport = ({ processedMeasureReport }) => {
         </MainCard>
       </Grid>
       <Grid item xs={12}>
-        <Grid container alignItems="center" justifyContent="space-between">
-          <Grid item>
-            <Typography variant="h5">Ethnicity and Race</Typography>
-          </Grid>
-        </Grid>
-        <MainCard>
-          <PatientColumnChart
-            measureReport={measureReport}
-            numeratorDescription={population['numerator'].description}
-            denominatorDescription={population['denominator'].description}
-          />
-        </MainCard>
         <Grid sx={{ mt: 5 }} item>
           <Typography variant="h5">Measure Report Data</Typography>
         </Grid>

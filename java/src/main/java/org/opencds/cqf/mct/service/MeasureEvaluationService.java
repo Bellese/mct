@@ -76,7 +76,7 @@ public class MeasureEvaluationService {
     * @return the patient <a href="http://hl7.org/fhir/measurereport.html">MeasureReport</a>
     */
    public MeasureReport getPatientReport(GatherService.PatientBundle patientBundle) {
-      return evaluate(Collections.singletonList("Patient/" + patientBundle.getPatientId()), patientBundle.getPatientData());
+      return evaluate(Collections.singletonList("Patient/" + patientBundle.getPatientId()), patientBundle.getPatientData(), "subject");
    }
 
    /**
@@ -89,7 +89,7 @@ public class MeasureEvaluationService {
     */
    public MeasureReport getPopulationReport(List<String> patientIds, List<GatherService.PatientBundle> patientDataBundles) {
       return evaluate(patientIds, new Bundle().setEntry(patientDataBundles.stream().map(
-              bundle -> bundle.getPatientData().getEntry()).flatMap(List::stream).collect(Collectors.toList())));
+              bundle -> bundle.getPatientData().getEntry()).flatMap(List::stream).collect(Collectors.toList())), "population");
    }
 
    /**
@@ -99,7 +99,7 @@ public class MeasureEvaluationService {
     * @param patientData the patient data
     * @return the result of the $evaluate-measure operation (<a href="http://hl7.org/fhir/measurereport.html">MeasureReport</a>)
     */
-   public MeasureReport evaluate(List<String> patientIds, Bundle patientData) {
+   public MeasureReport evaluate(List<String> patientIds, Bundle patientData, String reportType) {
       CqlEngine engine = Engines.forRepository(
               contentRepository,
               evaluationOptions.getEvaluationSettings(),
@@ -109,7 +109,7 @@ public class MeasureEvaluationService {
                       patientIds, measure, periodStart, periodEnd,
                       new Parameters(), engine);
       return measureProcessor.evaluateMeasure(
-              measure, periodStart, periodEnd, null, patientIds, null,
+              measure, periodStart, periodEnd, reportType, patientIds, null,
               engine, compositeResults);
    }
 }
