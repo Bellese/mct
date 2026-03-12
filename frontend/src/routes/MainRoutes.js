@@ -7,6 +7,7 @@ import MainLayout from 'layout/MainLayout';
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 const AdminPage = Loadable(lazy(() => import('pages/admin')));
+const ClinicalDataSources = Loadable(lazy(() => import('pages/admin/ClinicalDataSources')));
 
 const MainRoutes = {
   path: '/',
@@ -28,6 +29,10 @@ const MainRoutes = {
     {
       path: 'admin',
       element: <AdminPage />
+    },
+    {
+      path: 'admin/clinical-data-sources',
+      element: <ClinicalDataSources />
     }
   ]
 };

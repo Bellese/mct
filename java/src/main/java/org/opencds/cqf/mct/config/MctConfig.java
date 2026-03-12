@@ -33,10 +33,14 @@ import org.opencds.cqf.mct.service.MeasureConfigurationService;
 import org.opencds.cqf.mct.service.PatientSelectorService;
 import org.opencds.cqf.mct.service.ReceivingSystemConfigurationService;
 import org.opencds.cqf.mct.validation.MctNpmPackageValidationSupport;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.Map;
 import java.util.Objects;
@@ -44,6 +48,9 @@ import java.util.Objects;
 @Configuration
 @Import({ MctProperties.class })
 public class MctConfig {
+
+   @Value("${mct.facilities-bundle-path}")
+   private String facilitiesBundlePath;
 
    @Bean
    public ModelResolver modelResolver() {
@@ -151,7 +158,7 @@ public class MctConfig {
 
    @Bean
    public FacilityRegistrationService facilityRegistrationService() {
-      return new FacilityRegistrationService();
+      return new FacilityRegistrationService(facilitiesBundlePath);
    }
 
    @Bean
@@ -180,8 +187,22 @@ public class MctConfig {
               ClasspathUtil.loadResourceAsStream("classpath:configuration/receiving-system/receiving-system-bundle.json"));
    }
 
+   /**
+    * Loads the facilities bundle, preferring the external file at {@code mct.facilities-bundle-path}
+    * if it exists. This allows user-made changes (add/edit/delete facilities) to survive container
+    * restarts via a Docker volume mount. Falls back to the classpath default on first run or after
+    * a volume reset.
+    */
    @Bean
    public Bundle facilitiesBundle(FhirContext fhirContext) {
+      File externalFile = new File(facilitiesBundlePath);
+      if (externalFile.exists()) {
+         try {
+            return fhirContext.newJsonParser().parseResource(Bundle.class, new FileInputStream(externalFile));
+         } catch (FileNotFoundException e) {
+            // fall through to classpath default
+         }
+      }
       return fhirContext.newJsonParser().parseResource(Bundle.class,
               ClasspathUtil.loadResourceAsStream("classpath:configuration/facilities/facilities-bundle.json"));
    }

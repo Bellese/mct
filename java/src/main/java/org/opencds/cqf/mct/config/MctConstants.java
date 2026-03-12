@@ -23,6 +23,11 @@ public class MctConstants {
    public static final String LIST_ORGANIZATIONS_OPERATION_NAME = "$list-organizations";
    public static final String LIST_FACILITIES_OPERATION_NAME = "$list-facilities";
    public static final String LIST_FACILITIES_PARAM = "organization";
+   public static final String REGISTER_FACILITY_OPERATION_NAME = "$register-facility";
+   public static final String UPDATE_FACILITY_OPERATION_NAME = "$update-facility";
+   public static final String DELETE_FACILITY_OPERATION_NAME = "$delete-facility";
+   public static final String FACILITY_PARAM = "facility";
+   public static final String FACILITY_ID_PARAM = "facilityId";
    public static final String FHIR_REST_CONNECTION_TYPE = "hl7-fhir-rest";
    public static final String MISSING_FHIR_REST_ENDPOINT = "No contained REST FHIR endpoint was present";
 

@@ -18,6 +18,8 @@ services:
       context: ../java
     ports:
       - "8088:8088"
+    volumes:
+      - mct-config:/app/config
 
   ########################
   # Facility A
@@ -45,3 +47,6 @@ services:
       - HAPI_FHIR_SERVER_ADDRESS=http://localhost:8082/fhir
       - HAPI_FHIR_FHIR_VERSION=R4
       - HAPI_FHIR_TESTER_HOME_SERVER_ADDRESS=http://localhost:8082/fhir
+
+volumes:
+  mct-config:

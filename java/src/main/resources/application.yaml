@@ -1,5 +1,7 @@
 server:
   port: 8088
+mct:
+  facilities-bundle-path: /app/config/facilities-bundle.json
 hapi:
   fhir:
     fhir_version: R4
