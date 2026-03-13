@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Grid, Tabs, Tab, Typography } from '@mui/material';
-import { ArrowLeftOutlined, ArrowUpOutlined } from '@ant-design/icons';
+import { ArrowUpOutlined } from '@ant-design/icons';
 
 import PromptChoiceCard from './PromptChoiceCard';
 import LoadingPage from 'components/LoadingPage';
@@ -35,25 +35,7 @@ const DashboardDefault = () => {
     setValue(0);
   }, [measureReport]);
 
-  if (measure.length === 0) {
-    return (
-      <Grid item xs={12} sx={{ mb: -2.25 }}>
-        <PromptChoiceCard>
-          <Box sx={{ display: 'flex', mt: 10, fontSize: 30 }}>
-            <Typography variant="h1" gutterBottom>
-              <ArrowLeftOutlined /> Select a
-            </Typography>
-            <Typography variant="h1" sx={{ ml: 1, mr: 1, color: 'primary.main' }}>
-              Measure
-            </Typography>
-            <Typography variant="h1" gutterBottom>
-              to Begin
-            </Typography>
-          </Box>
-        </PromptChoiceCard>
-      </Grid>
-    );
-  } else if (selectedPatients.length >= 0 && measureReport === null) {
+  if (measure.length === 0 || (selectedPatients.length >= 0 && measureReport === null)) {
     return (
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <PromptChoiceCard>
