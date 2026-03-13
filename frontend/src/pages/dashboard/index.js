@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import { Box, Grid, Tabs, Tab, Typography } from '@mui/material';
-import { ArrowUpOutlined } from '@ant-design/icons';
-
 import PromptChoiceCard from './PromptChoiceCard';
 import LoadingPage from 'components/LoadingPage';
 import { processMeasureReportPayload } from 'utils/measureReportHelpers';
@@ -39,15 +37,15 @@ const DashboardDefault = () => {
     return (
       <Grid item xs={12} sx={{ mb: -2.25 }}>
         <PromptChoiceCard>
-          <Box sx={{ display: 'flex', mt: 10, fontSize: 30 }}>
+          <Box sx={{ display: 'flex', flexWrap: 'wrap', mt: 10, fontSize: 30 }}>
             <Typography variant="h1" gutterBottom>
-              <ArrowUpOutlined /> Select
+              Select
             </Typography>
             <Typography variant="h1" sx={{ ml: 1, mr: 1, color: 'primary.main' }}>
-              Patient(s)
+              Measure, Patient(s) and Date Range
             </Typography>
             <Typography variant="h1" gutterBottom>
-              and submit request for report
+              then Get Report to perform a measure calculation.
             </Typography>
           </Box>
         </PromptChoiceCard>
