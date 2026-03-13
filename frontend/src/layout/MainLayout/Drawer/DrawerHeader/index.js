@@ -14,7 +14,7 @@ const DrawerHeader = ({ open }) => {
           CQF MCT
         </Typography>
         <Chip
-          label={'1.0.0'}
+          label={'1.5'}
           size="small"
           sx={{ height: 16, '& .MuiChip-label': { fontSize: '0.625rem', py: 0.25 } }}
           component="a"
