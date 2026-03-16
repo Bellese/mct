@@ -33,6 +33,8 @@ services:
       - HAPI_FHIR_SERVER_ADDRESS=http://localhost:8080/fhir
       - HAPI_FHIR_FHIR_VERSION=R4
       - HAPI_FHIR_TESTER_HOME_SERVER_ADDRESS=http://localhost:8080/fhir
+      - HAPI_FHIR_OPENAPI_ENABLED=true
+
 
   ########################
   # Facility B

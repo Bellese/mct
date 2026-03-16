@@ -52,12 +52,13 @@ For feedback and questions please submit an issue to this repository or on the [
 ### API Documentation
 This project uses HAPI FHIR's OpenAPI implementation to expose interactive API documentation via Swagger UI.
 
-#### Accessing Swagger UI
+#### Accessing Swagger UI for MCT
 Once the stack is running, navigate to:
 ```text
 http://localhost:8088/mct/swagger-ui/
 ```
-The raw OpenAPI 3.0 specification is available at:
+#### Accessing Swagger UI for Facility-A
+Once the stack is running, navigate to:
 ```text
-http://localhost:8088/mct/api-docs
+http://localhost:8080/fhir/swagger-ui/
 ```
