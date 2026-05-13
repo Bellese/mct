@@ -1,9 +1,10 @@
-library CMS104TestDataGenerator version '1.0.0'
+library CMS104TestDataGenerator2026 version '1.0.0'
 
 using FHIR version '4.0.1'
 
-parameter MeasurementPeriod default Interval[@2026-01-01, @2026-12-31]
+parameter MeasurementPeriod default Interval[@2026-01-01T00:00:00.000Z, @2027-01-01T00:00:00.000Z)
 parameter NumberOfTests default 200
+parameter MeasureId default 'CMS104'
 
 define NumberOfTestCases:
     (expand { Interval[ToQuantity(0), ToQuantity(NumberOfTests)] } per ToQuantity(1)) exapandResult
@@ -18,6 +19,9 @@ define InNumeratorCount:
 
 define OtherPopulationsCount:
     GetNumberOfTestCasesList(Truncate(Round(Length(NumberOfTestCases) * 0.1)))
+
+define function BuildTestCaseId(population String, count Integer):
+    MeasureId + '-' + ToString(NumberOfTests) + 'N-' + population + '-' + ToString(count)
 
 define function getRandomNumber() returns Decimal : external
 
@@ -44,6 +48,12 @@ define RandomMillisecond:
 
 define EvaluationTimezone:
     timezoneoffset from Now()
+
+define ProviderId:
+    'cms104-provider'
+
+define ProviderReference:
+    'Practitioner/' + ProviderId
 
 define MaleFirstName_100:
     {'Lucas', 'Markell', 'Leland', 'Jonatan', 'Frederick', 'German', 'Elvis', 'Gage', 'Yisroel', 'Thomas', 'Jayson', 'Kenton', 'Patrick', 'Alberto', 'Willis', 'Davon', 'Kyron', 'Rolando', 'Johnny', 'Cristian', 'Donald', 'Broderick', 'Chaz', 'Elian', 'Darrin', 'Dayton', 'Jude', 'Samir', 'Benito', 'Demetrius', 'Shane', 'Adan', 'Johnpaul', 'Waylon', 'Rigoberto', 'Bo', 'Bruno', 'Kadin', 'Shamar', 'Vernon', 'Bryce', 'Dane', 'Ronaldo', 'Aditya', 'Bowen', 'Luciano', 'Jamison', 'Bernard', 'Brennan', 'Xander', 'Tate', 'Lukas', 'Sydney', 'Jayvon', 'Samuel', 'Jett', 'Octavio', 'Ramon', 'Humberto', 'Elliot', 'Riley', 'Izaiah', 'Ronan', 'Myron', 'Kale', 'Wade', 'Randolph', 'Konner', 'Donnell', 'Jaxon', 'Santino', 'Taylor', 'Jerod', 'Corey', 'Leonardo', 'Ibrahim', 'Eddie', 'Ashton', 'Bobby', 'Keshawn', 'Kerry', 'Garett', 'Adrian', 'Leon', 'Parker', 'Ellis', 'Kalen', 'Austin', 'Ralph', 'Deshawn', 'Keelan', 'Cade', 'Jamel', 'Benjamin', 'Seamus', 'Treyvon', 'Notnamed', 'Greyson', 'Devlin', 'Julian'}
@@ -78,17 +88,32 @@ define SnomedIschemicStrokeCodes:
 define RxNormAntithromboticCodes:
     Tuple {
         system: 'http://www.nlm.nih.gov/research/umls/rxnorm',
-        codes: { '1037045', '1037179', '1092398', '1114198', '1116635', '1232082', '1232086', '1250907', '1361574', '1364435', '1364445', '1536467', '1536498', '1536503', '1536675', '1536815', '1536833', '1536840', '1537029', '1549682', '1593110', '1599543', '1599551', '1599555', '1658717', '1659195', '1659197', '1665356', '1666332', '1722689', '1723476', '1730187', '1804735', '1804737', '1804738', '1811631', '1811632', '198464', '198466', '198467', '198471', '198473', '198475', '198479', '198480', '1992427', '2059015', '212033', '243670', '243694', '252857', '2588062', '259081', '308278', '308297', '308351', '308363', '308409', '308411', '308416', '308417', '309362', '313406', '318272', '359221', '432638', '692836', '702316', '749196', '763111', '763116', '827318', '854228', '854235', '854238', '854241', '854245', '854248', '854252', '854255', '855288', '855296', '855302', '855312', '855318', '855324', '855332', '855338', '855344', '861356', '861360', '861363', '861365', '900528', '978725', '978733', '978736', '978740', '978744', '978746', '978755', '978759', '978777', '994430', '994435', '994528', '994535' }
+        codes: { '1037045', '1037179', '1092398', '1114198', '1116635', '1232082', '1232086', '1250907', '1361574', '1364435', '1364445', '1536467', '1536498', '1536503', '1536675', '1536815', '1536833', '1536840', '1537029', '1549682', '1593110', '1599543', '1599551', '1599555', '1658717', '1659195', '1659197', '1665356', '1666332', '1722689', '1723476', '1730187', '1804735', '1804737', '1811631', '1811632', '197447', '197945', '198464', '198466', '198467', '198471', '198475', '198479', '198480', '1992427', '2059015', '212033', '2267026', '2360605', '238134', '238135', '243670', '243694', '252857', '2565491', '2565492', '2583731', '2588062', '2590616', '2590620', '2590623', '2590627', '2590631', '2590635', '259081', '2618839', '2626726', '308278', '308297', '308351', '308363', '308409', '308411', '308416', '309362', '313406', '318272', '359221', '432638', '637540', '692836', '702316', '749196', '763111', '763116', '806446', '827318', '848768', '854238', '854241', '854245', '854248', '854252', '854255', '855288', '855296', '855302', '855312', '855318', '855324', '855332', '855338', '855344', '857121', '861356', '861360', '861363', '861365', '900528', '978725', '978733', '978736', '978740', '978744', '978746', '978755', '978759', '978777', '994226', '994237', '994430', '994435', '994528', '994535' }
     }
 
-define MedicationRequestReasonCodes:
+define MedicalReasonForNotProvidingTreatmentCodes:
     Tuple {
         system: 'http://snomed.info/sct',
-        codes: { '105480006', '182890002', '182895007', '443390004', '183966005', '31438003', '407563006', '410529002', '416098002', '419511003', '59037007', '62014003', '79899007' }
+        codes: { '183932001', '183964008', '183966005', '266721009', '31438003', '35688006', '407563006', '410529002', '410534003', '410536001', '416098002', '419511003', '428024001', '428119001', '59037007', '62014003', '79899007' }
+    }
+
+define PatientRefusalCodes:
+    Tuple {
+        system: 'http://snomed.info/sct',
+        codes: { '1162745003', '1296859006', '182890002', '182895007', '182896008', '182897004', '182898009', '182900006', '182901005', '182903008', '183945002', '183946001', '183948000', '275936005', '406149000', '416432009', '443390004', '895451009' }
+    }
+
+define DenominatorExceptionReasonCodeSets:
+    { MedicalReasonForNotProvidingTreatmentCodes, PatientRefusalCodes }
+
+define PharmacologicalContraindicationCodes:
+    Tuple {
+        system: 'http://www.nlm.nih.gov/research/umls/rxnorm',
+        codes: { '855812', '855818' }
     }
 
 define InpatientEncounterCodes:
-    { '183452005', '32485007' }
+    { '183452005', '32485007', '442281000124108' }
 
 define InpatientEncounterDischargeCodes:
     Tuple {
@@ -104,6 +129,9 @@ define ComfortMeasureCodes:
         system: 'http://snomed.info/sct',
         codes: { '133918004', '182964004', '385736008', '385763009' }
     }
+
+define AllowedMedicationRequestIntents:
+    { 'order', 'original-order', 'reflex-order', 'filler-order', 'instance-order' }
 
 define RaceCategoryCodes:
     {
@@ -126,7 +154,7 @@ define DateMaxDays:
 define GetRandomDateTimeDuringMeasurementPeriod:
     DateTime(
         year from start of MeasurementPeriod,
-        RandomNumberInRange(month from start of MeasurementPeriod, month from end of MeasurementPeriod),
+        RandomNumberInRange(1, 12),
         RandomDay, RandomHour, RandomMinute, RandomSecond, RandomMillisecond, EvaluationTimezone
     )
 
@@ -147,7 +175,7 @@ define function GetRandomDateInPeriod(startDate DateTime, endDate DateTime):
         hour from startDate, minute from startDate, second from startDate, millisecond from startDate, EvaluationTimezone
     )
 
-define function BuildRandomTestCase(TestCaseId String, count Integer, PatientReference String, IsMale Boolean, HasInpatientEncounterWithDischarge Boolean, HasStroke Boolean, HasAntithromboticMedReq Boolean, AntithromboticMedReqNotPerformed Boolean):
+define function BuildRandomTestCase(TestCaseId String, count Integer, PatientReference String, IsMale Boolean, HasInpatientEncounterWithDischarge Boolean):
     TestCaseId ID
         let PatientFirstName: if IsMale then RandomMaleFirstName else RandomFemaleFirstName,
             PatientLastName: RandomLastName,
@@ -156,79 +184,136 @@ define function BuildRandomTestCase(TestCaseId String, count Integer, PatientRef
             AdultPatient: BuildPatient(TestCaseId, PatientFirstName, PatientLastName, PatientGender, PatientBirthDate, Addresses[count]),
             ConditionReference: 'Condition/' + TestCaseId,
             EncounterReference: 'Encounter/' + TestCaseId,
+            CoverageReference: 'Coverage/' + TestCaseId,
+            MedicationRequestReference: 'MedicationRequest/' + TestCaseId + '-rej-at',
             IschemicStrokeCodeSets: { ICD10IschemicStrokeCodes, SnomedIschemicStrokeCodes },
             RandomIschemicCodeSet: IschemicStrokeCodeSets[RandomNumberInRange(0, 1)],
             IschemicCodeSystem: RandomIschemicCodeSet.system,
             IschemicCodeCode: RandomIschemicCodeSet.codes[RandomNumberInRange(0, Length(RandomIschemicCodeSet.codes) - 1)],
             IschemicCondition: BuildCondition(TestCaseId, IschemicCodeSystem, IschemicCodeCode, PatientReference, EncounterReference),
-            RandomInpatientEncounterCode: InpatientEncounterCodes[RandomNumberInRange(0, 1)],
+            RandomInpatientEncounterCode: InpatientEncounterCodes[RandomNumberInRange(0, Length(InpatientEncounterCodes) - 1)],
             EncounterPeriodEnd: GetRandomDateTimeDuringMeasurementPeriod,
             EncounterPeriodStart: EncounterPeriodEnd - ToQuantity(ToString(RandomNumberInRange(0, 120)) + ' days'),
             EncounterInterval: Interval[EncounterPeriodStart, EncounterPeriodEnd],
             EncounterDischargeSystem: if HasInpatientEncounterWithDischarge then InpatientEncounterDischargeCodes.system else null,
-            EncounterDischargeCode: if HasInpatientEncounterWithDischarge then InpatientEncounterDischargeCodes.codes[RandomNumberInRange(0, 6)] else null,
+            EncounterDischargeCode: if HasInpatientEncounterWithDischarge then InpatientEncounterDischargeCodes.codes[RandomNumberInRange(0, Length(InpatientEncounterDischargeCodes.codes) - 1)] else null,
             NonElectiveInpatientEncounter: BuildEncounter(TestCaseId, 'finished', RandomInpatientEncounterCode, PatientReference, EncounterPeriodStart, EncounterPeriodEnd, ConditionReference, EncounterDischargeSystem, EncounterDischargeCode),
-            AntithromboticMedReqAuthoredOn: GetRandomDateInPeriod(start of EncounterInterval, end of EncounterInterval),
+            PatientCoverage: BuildCoverage(TestCaseId, PatientReference),
+            PrincipalDiagnosisClaim: BuildClaim(TestCaseId, PatientReference, EncounterReference, ProviderReference, CoverageReference, EncounterPeriodEnd, IschemicCodeSystem, IschemicCodeCode),
+            AntithromboticMedReqAuthoredOn: EncounterPeriodEnd - ToQuantity(ToString(RandomNumberInRange(0, 3)) + ' days'),
             AntithromboticMedReqStatus: MedicationRequestStatusCodes[RandomNumberInRange(0, 1)],
+            AntithromboticMedReqIntent: AllowedMedicationRequestIntents[RandomNumberInRange(0, Length(AllowedMedicationRequestIntents) - 1)],
             AntithromboticMedReqMedicationConcept: BuildCodeableConcept(RxNormAntithromboticCodes.system, RxNormAntithromboticCodes.codes[RandomNumberInRange(0, Length(RxNormAntithromboticCodes.codes) - 1)]),
-            AntithromboticMedReqDoNotPerform: if AntithromboticMedReqNotPerformed then true else false,
-            AntithromboticMedReqReasonSystem: if AntithromboticMedReqNotPerformed then MedicationRequestReasonCodes.system else null,
-            AntithromboticMedReqReasonCode: if AntithromboticMedReqNotPerformed then MedicationRequestReasonCodes.codes[RandomNumberInRange(0, 12)] else null,
-            AntithromboticMedReq: BuildMedicationRequest(TestCaseId, AntithromboticMedReqStatus, 'order', true, false, AntithromboticMedReqDoNotPerform, AntithromboticMedReqMedicationConcept, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn, null, AntithromboticMedReqReasonSystem, AntithromboticMedReqReasonCode)
+            ReasonCodeSet: DenominatorExceptionReasonCodeSets[RandomNumberInRange(0, Length(DenominatorExceptionReasonCodeSets) - 1)],
+            ReasonCode: ReasonCodeSet.codes[RandomNumberInRange(0, Length(ReasonCodeSet.codes) - 1)],
+            PharmacologicalContraindicationMedicationConcept: BuildCodeableConcept(PharmacologicalContraindicationCodes.system, PharmacologicalContraindicationCodes.codes[RandomNumberInRange(0, Length(PharmacologicalContraindicationCodes.codes) - 1)]),
+            ComfortMeasureCode: ComfortMeasureCodes.codes[RandomNumberInRange(0, Length(ComfortMeasureCodes.codes) - 1)],
+            AntithromboticMedReq: BuildMedicationRequest(TestCaseId, AntithromboticMedReqStatus, AntithromboticMedReqIntent, true, false, false, AntithromboticMedReqMedicationConcept, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn, null, null, null),
+            MedicationNotRequested: BuildMedicationNotRequested(TestCaseId + '-mnr', AntithromboticMedReqStatus, AntithromboticMedReqIntent, true, false, AntithromboticMedReqMedicationConcept, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn, null, ReasonCodeSet.system, ReasonCode),
+            RejectedAntithromboticMedReq: BuildMedicationRequest(TestCaseId + '-rej-at', AntithromboticMedReqStatus, AntithromboticMedReqIntent, true, false, false, AntithromboticMedReqMedicationConcept, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn, null, null, null),
+            TaskRejected: BuildTaskRejected(TestCaseId + '-task-rej', MedicationRequestReference, PatientReference, ReasonCodeSet.system, ReasonCode),
+            PharmacologicalContraindicationMedReq: BuildMedicationRequest(TestCaseId + '-pharm-ci', AntithromboticMedReqStatus, AntithromboticMedReqIntent, true, false, false, PharmacologicalContraindicationMedicationConcept, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn, null, null, null),
+            ComfortMeasureServiceRequest: BuildServiceRequest(TestCaseId + '-cm-sr', 'active', AntithromboticMedReqIntent, PatientReference, AntithromboticMedReqAuthoredOn, ComfortMeasureCodes.system, ComfortMeasureCode, EncounterReference),
+            ComfortMeasureProcedure: BuildProcedure(TestCaseId + '-cm-proc', AntithromboticMedReqAuthoredOn, 'completed', ComfortMeasureCodes.system, ComfortMeasureCode, PatientReference, EncounterReference, AntithromboticMedReqAuthoredOn)
             return
                 Tuple {
                     ThePatient: AdultPatient,
                     TheCondition: IschemicCondition,
                     TheEncounter: NonElectiveInpatientEncounter,
-                    TheMedicationRequest: AntithromboticMedReq
+                    TheCoverage: PatientCoverage,
+                    TheClaim: PrincipalDiagnosisClaim,
+                    TheMedicationRequest: AntithromboticMedReq,
+                    TheMedicationNotRequested: MedicationNotRequested,
+                    TheRejectedMedicationRequest: RejectedAntithromboticMedReq,
+                    TheTaskRejected: TaskRejected,
+                    ThePharmacologicalContraindicationMedicationRequest: PharmacologicalContraindicationMedReq,
+                    TheComfortMeasureServiceRequest: ComfortMeasureServiceRequest,
+                    TheComfortMeasureProcedure: ComfortMeasureProcedure
                 }
 
 define BuildIneligibleTestCases:
     OtherPopulationsCount C
-        let TestCaseId: 'ineligible-' + ToString(C),
+        let TestCaseId: BuildTestCaseId('ineligible', C),
             PatientReference: 'Patient/' + TestCaseId,
             IsMale: C <= (Last(OtherPopulationsCount) / 2),
-            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false, false, false, false)
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
             return { Result.ThePatient }
 
 define BuildInInitialPopulationTestCases:
     OtherPopulationsCount C
-        let TestCaseId: 'in-initial-population-' + ToString(C),
+        let TestCaseId: BuildTestCaseId('in-initial-population', C),
             PatientReference: 'Patient/' + TestCaseId,
             IsMale: C <= (Last(OtherPopulationsCount) / 2),
-            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false, true, false, false)
-            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter }
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim }
 
 define BuildInNumeratorTestCases:
     InNumeratorCount C
-        let TestCaseId: 'in-numerator-' + ToString(C),
+        let TestCaseId: BuildTestCaseId('in-numerator', C),
             PatientReference: 'Patient/' + TestCaseId,
             IsMale: C <= (Last(InNumeratorCount) / 2),
-            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false, true, true, false)
-            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheMedicationRequest }
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.TheMedicationRequest }
 
-define BuildDenominatorExclusionsTestCases:
+define BuildDenominatorExclusionDischargeTestCases:
     OtherPopulationsCount C
-        let TestCaseId: 'denominator-exclusion-' + ToString(C),
+        let TestCaseId: BuildTestCaseId('denex-discharge', C),
             PatientReference: 'Patient/' + TestCaseId,
             IsMale: C <= (Last(OtherPopulationsCount) / 2),
-            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, true, true, true, false)
-            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheMedicationRequest }
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, true)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim }
 
-define BuildDenominatorExceptionsTestCases:
+define BuildDenominatorExclusionComfortServiceRequestTestCases:
     OtherPopulationsCount C
-        let TestCaseId: 'denominator-exception-' + ToString(C),
+        let TestCaseId: BuildTestCaseId('denex-cm-sr', C),
             PatientReference: 'Patient/' + TestCaseId,
             IsMale: C <= (Last(OtherPopulationsCount) / 2),
-            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false, true, true, true)
-            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheMedicationRequest }
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.TheComfortMeasureServiceRequest }
+
+define BuildDenominatorExclusionComfortProcedureTestCases:
+    OtherPopulationsCount C
+        let TestCaseId: BuildTestCaseId('denex-cm-proc', C),
+            PatientReference: 'Patient/' + TestCaseId,
+            IsMale: C <= (Last(OtherPopulationsCount) / 2),
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.TheComfortMeasureProcedure }
+
+define BuildDenominatorExceptionMedicationNotRequestedTestCases:
+    OtherPopulationsCount C
+        let TestCaseId: BuildTestCaseId('denexc-mnr', C),
+            PatientReference: 'Patient/' + TestCaseId,
+            IsMale: C <= (Last(OtherPopulationsCount) / 2),
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.TheMedicationNotRequested }
+
+define BuildDenominatorExceptionTaskRejectedTestCases:
+    OtherPopulationsCount C
+        let TestCaseId: BuildTestCaseId('denexc-task', C),
+            PatientReference: 'Patient/' + TestCaseId,
+            IsMale: C <= (Last(OtherPopulationsCount) / 2),
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.TheRejectedMedicationRequest } union { Result.TheTaskRejected }
+
+define BuildDenominatorExceptionPharmacologicalContraindicationTestCases:
+    OtherPopulationsCount C
+        let TestCaseId: BuildTestCaseId('denexc-pharm', C),
+            PatientReference: 'Patient/' + TestCaseId,
+            IsMale: C <= (Last(OtherPopulationsCount) / 2),
+            Result: BuildRandomTestCase(TestCaseId, C, PatientReference, IsMale, false)
+            return { Result.ThePatient } union { Result.TheCondition } union { Result.TheEncounter } union { Result.TheCoverage } union { Result.TheClaim } union { Result.ThePharmacologicalContraindicationMedicationRequest }
 
 define BuildTestCases:
-    (flatten BuildIneligibleTestCases)
+    { BuildPractitioner(ProviderId) }
+    union (flatten BuildIneligibleTestCases)
     union (flatten BuildInInitialPopulationTestCases)
     union (flatten BuildInNumeratorTestCases)
-    union (flatten BuildDenominatorExclusionsTestCases)
-    union (flatten BuildDenominatorExceptionsTestCases)
+    union (flatten BuildDenominatorExclusionDischargeTestCases)
+    union (flatten BuildDenominatorExclusionComfortServiceRequestTestCases)
+    union (flatten BuildDenominatorExclusionComfortProcedureTestCases)
+    union (flatten BuildDenominatorExceptionMedicationNotRequestedTestCases)
+    union (flatten BuildDenominatorExceptionTaskRejectedTestCases)
+    union (flatten BuildDenominatorExceptionPharmacologicalContraindicationTestCases)
 
 define TestDataGenerationResult:
     BuildBundle(BuildTestCases)
@@ -248,6 +333,11 @@ define function BuildBundleEntry(resources List<FHIR.Resource>):
                 when resource is FHIR.Condition then 'Condition/'
                 when resource is FHIR.MedicationRequest then 'MedicationRequest/'
                 when resource is FHIR.ServiceRequest then 'ServiceRequest/'
+                when resource is FHIR.Coverage then 'Coverage/'
+                when resource is FHIR.Claim then 'Claim/'
+                when resource is FHIR.Practitioner then 'Practitioner/'
+                when resource is FHIR.Task then 'Task/'
+                when resource is FHIR.Procedure then 'Procedure/'
                 else ''
             end
         return
@@ -411,6 +501,93 @@ define function BuildEncounter(id String, status String, type String, subject St
             else null
     }
 
+define function BuildPractitioner(id String):
+    FHIR.Practitioner {
+        id: FHIR.id { value: id },
+        meta: BuildMeta('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-practitioner'),
+        identifier: List<FHIR.Identifier> {
+            FHIR.Identifier {
+                system: FHIR.uri { value: 'http://hl7.org/fhir/sid/us-npi' },
+                value: FHIR.string { value: '9999999999' }
+            }
+        },
+        active: FHIR.boolean { value: true },
+        name: List<FHIR.HumanName> {
+            FHIR.HumanName {
+                use: FHIR.NameUse { value: 'official' },
+                family: FHIR.string { value: 'TestProvider' },
+                given: List<FHIR.string> {
+                    FHIR.string { value: 'CMS104' }
+                }
+            }
+        }
+    }
+
+define function BuildCoverage(id String, patientReference String):
+    FHIR.Coverage {
+        id: FHIR.id { value: id },
+        meta: BuildMeta('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-coverage'),
+        identifier: List<FHIR.Identifier> {
+            FHIR.Identifier {
+                system: FHIR.uri { value: 'http://example.org/mct/coverage-id' },
+                value: FHIR.string { value: id }
+            }
+        },
+        status: FHIR.CoverageStatus { value: 'active' },
+        type: BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/coverage-selfpay', 'pay'),
+        subscriber: FHIR.Reference { reference: FHIR.string { value: patientReference } },
+        beneficiary: FHIR.Reference { reference: FHIR.string { value: patientReference } },
+        relationship: BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/subscriber-relationship', 'self'),
+        period: FHIR.Period {
+            start: FHIR.dateTime { value: start of MeasurementPeriod },
+            end: FHIR.dateTime { value: end of MeasurementPeriod }
+        },
+        payor: List<FHIR.Reference> {
+            FHIR.Reference { reference: FHIR.string { value: patientReference } }
+        }
+    }
+
+define function BuildClaim(id String, patientReference String, encounterReference String, providerReference String, coverageReference String, created DateTime, principalDiagnosisSystem String, principalDiagnosisCode String):
+    FHIR.Claim {
+        id: FHIR.id { value: id },
+        meta: BuildMeta('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-claim'),
+        status: FHIR.ClaimStatus { value: 'active' },
+        type: BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/claim-type', 'institutional'),
+        use: FHIR.Use { value: 'claim' },
+        patient: FHIR.Reference { reference: FHIR.string { value: patientReference } },
+        created: FHIR.dateTime { value: created },
+        provider: FHIR.Reference { reference: FHIR.string { value: providerReference } },
+        priority: BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/processpriority', 'normal'),
+        diagnosis: List<FHIR.Claim.Diagnosis> {
+            FHIR.Claim.Diagnosis {
+                sequence: FHIR.positiveInt { value: 1 },
+                diagnosis: BuildCodeableConcept(principalDiagnosisSystem, principalDiagnosisCode),
+                type: List<FHIR.CodeableConcept> {
+                    BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/ex-diagnosistype', 'principal')
+                }
+            }
+        },
+        insurance: List<FHIR.Claim.Insurance> {
+            FHIR.Claim.Insurance {
+                sequence: FHIR.positiveInt { value: 1 },
+                focal: FHIR.boolean { value: true },
+                coverage: FHIR.Reference { reference: FHIR.string { value: coverageReference } }
+            }
+        },
+        item: List<FHIR.Claim.Item> {
+            FHIR.Claim.Item {
+                sequence: FHIR.positiveInt { value: 1 },
+                diagnosisSequence: List<FHIR.positiveInt> {
+                    FHIR.positiveInt { value: 1 }
+                },
+                productOrService: BuildCodeableConcept('http://terminology.hl7.org/CodeSystem/ex-USCLS', '99555'),
+                encounter: List<FHIR.Reference> {
+                    FHIR.Reference { reference: FHIR.string { value: encounterReference } }
+                }
+            }
+        }
+    }
+
 define function BuildServiceRequest(id String, status String, intent String, subject String, authoredOn DateTime, codeSystem String, codeCode String, encounterReference String):
     FHIR.ServiceRequest {
         id: FHIR.id { value: id },
@@ -421,6 +598,18 @@ define function BuildServiceRequest(id String, status String, intent String, sub
         subject: FHIR.Reference { reference: FHIR.string { value: subject } },
         encounter: FHIR.Reference { reference: FHIR.string { value: encounterReference } },
         authoredOn: FHIR.dateTime { value: authoredOn }
+    }
+
+define function BuildTaskRejected(id String, focusReference String, patientReference String, statusReasonSystem String, statusReasonCode String):
+    FHIR.Task {
+        id: FHIR.id { value: id },
+        meta: BuildMeta('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-taskrejected'),
+        status: FHIR.TaskStatus { value: 'rejected' },
+        intent: FHIR.TaskIntent { value: 'order' },
+        code: BuildCodeableConcept('http://hl7.org/fhir/CodeSystem/task-code', 'fulfill'),
+        focus: FHIR.Reference { reference: FHIR.string { value: focusReference } },
+        statusReason: BuildCodeableConcept(statusReasonSystem, statusReasonCode),
+        for: FHIR.Reference { reference: FHIR.string { value: patientReference } }
     }
 
 define function BuildProcedure(id String, recorded DateTime, status String, codeSystem String, codeCode String, subject String, encounterReference String, performed Choice<DateTime, Interval<DateTime>>):
@@ -440,9 +629,15 @@ define function BuildProcedure(id String, recorded DateTime, status String, code
     }
 
 define function BuildMedicationRequest(id String, status String, intent String, isCommunity Boolean, isDischarge Boolean, doNotPerform Boolean, medication Choice<String, FHIR.CodeableConcept>, subject String, encounterReference String, authoredOn DateTime, requester String, reasonCodeSystem String, reasonCodeCode String):
+    BuildMedicationRequestWithProfile(id, 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-medicationrequest', status, intent, isCommunity, isDischarge, doNotPerform, medication, subject, encounterReference, authoredOn, requester, reasonCodeSystem, reasonCodeCode)
+
+define function BuildMedicationNotRequested(id String, status String, intent String, isCommunity Boolean, isDischarge Boolean, medication Choice<String, FHIR.CodeableConcept>, subject String, encounterReference String, authoredOn DateTime, requester String, reasonCodeSystem String, reasonCodeCode String):
+    BuildMedicationRequestWithProfile(id, 'http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-medicationnotrequested', status, intent, isCommunity, isDischarge, true, medication, subject, encounterReference, authoredOn, requester, reasonCodeSystem, reasonCodeCode)
+
+define function BuildMedicationRequestWithProfile(id String, profile String, status String, intent String, isCommunity Boolean, isDischarge Boolean, doNotPerform Boolean, medication Choice<String, FHIR.CodeableConcept>, subject String, encounterReference String, authoredOn DateTime, requester String, reasonCodeSystem String, reasonCodeCode String):
     FHIR.MedicationRequest {
         id: FHIR.id { value: id },
-        meta: BuildMeta('http://hl7.org/fhir/us/qicore/StructureDefinition/qicore-medicationrequest'),
+        meta: BuildMeta(profile),
         status: FHIR.MedicationRequestStatus { value: status },
         intent: FHIR.MedicationRequestIntent { value: intent },
         category: List<FHIR.CodeableConcept> {
