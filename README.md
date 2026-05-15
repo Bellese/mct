@@ -34,11 +34,11 @@ For feedback and questions please submit an issue to this repository or on the [
        - the frontend (`localhost:3000`)
        - the backend (`localhost:8088`)
        - 2 HAPI FHIR servers which serve as the facilities:
-          - `localhost:8080/fhir`
+          - `localhost:8081/fhir`
           - `localhost:8082/fhir`
 1. Load data with `./bin/load_local_data.sh` or use a HTTP client like Postman to load the patient test data bundles
     - The bundles can be found here: `java/src/main/resources/configuration/test-bundles`.
-    - POST the `facility-a-bundle.json` to localhost:8080/fhir
+    - POST the `facility-a-bundle.json` to localhost:8081/fhir
     - POST the `facility-b-bundle.json` to localhost:8082/fhir
 1. Navigate to the frontend UI at `http://localhost:3000`
 1. Select the organization for testing
@@ -60,5 +60,5 @@ http://localhost:8088/mct/swagger-ui/
 #### Accessing Swagger UI for Facility-A
 Once the stack is running, navigate to:
 ```text
-http://localhost:8080/fhir/swagger-ui/
+http://localhost:8081/fhir/swagger-ui/
 ```

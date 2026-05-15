@@ -10,6 +10,7 @@ import org.hl7.elm.r1.VersionedIdentifier;
 import org.hl7.fhir.r4.model.Bundle;
 import org.hl7.fhir.r4.model.Group;
 import org.hl7.fhir.r4.model.IntegerType;
+import org.hl7.fhir.r4.model.StringType;
 import org.hl7.fhir.r4.model.Patient;
 import org.hl7.fhir.r4.model.Reference;
 import org.hl7.fhir.r4.model.Resource;
@@ -24,10 +25,13 @@ import org.opencds.cqf.cql.engine.execution.EvaluationResults;
 import org.opencds.cqf.cql.engine.execution.ExpressionResult;
 import org.opencds.cqf.cql.engine.data.SystemExternalFunctionProvider;
 import org.opencds.cqf.mct.SpringContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,13 +43,21 @@ import java.util.stream.Collectors;
 import org.hl7.elm.r1.ExpressionDef;
 import java.util.Comparator;
 
+
 /**
  * The Patient Data Generator Service logic for the {@link org.opencds.cqf.mct.api.GeneratePatientDataAPI}.
  */
 public class PatientDataGeneratorService {
+   private static final Logger logger = LoggerFactory.getLogger(PatientDataGeneratorService.class);
    private static final String GENERATED_PATIENT_BASE = "-generated";
    private final DataProvider dataProvider;
    private static final Random randomNumberGenerator = new Random();
+   private static final String measureRefCMS104 = "CMS104";
+   private static final String measureRefCMS122 = "CMS122";
+   private static final Map<String, String> measureMap = Map.of(
+      measureRefCMS104, "CMS104TestDataGenerator2026",
+      measureRefCMS122, "CMS122TestDataGenerator2026"
+   );
 
    /**
     * Instantiates a new Patient Data Generator Service.
@@ -66,17 +78,30 @@ public class PatientDataGeneratorService {
    /**
     * Generate test cases for the CMS104 pilot measure
     *
-    * @see org.opencds.cqf.mct.api.GeneratePatientDataAPI#generatePatientData(IntegerType)
+    * @see org.opencds.cqf.mct.api.GeneratePatientDataAPI#generatePatientData(IntegerType, StringType)
     * @param numTestCases the number of test cases to generate (200 by default, defined in the CQL)
+    * @param measureRef the measure for which to generate cases (CMS104 by default)
     * @return the bundle of test cases containing the patient data
     * @throws IOException           when the cql file does not exist or is malformed
     * @throws NoSuchMethodException when the external function method is not present
     */
-   public Bundle generatePatientData(Integer numTestCases) throws IOException, NoSuchMethodException {
-      VersionedIdentifier versionedIdentifier =
-              new VersionedIdentifier().withId("CMS104TestDataGenerator2026").withVersion("1.0.0");
-      File cqlFile = new File(Objects.requireNonNull(Objects.requireNonNull(ClasspathUtil.class.getClassLoader().getResource(
-              "configuration/patient-data-gen-libraries/" + "CMS104TestDataGenerator2026" + ".cql")).getFile(), "UTF-8"));
+   public Bundle generatePatientData(Integer numTestCases, String measureRef) throws IOException, NoSuchMethodException {
+
+      logger.info(String.format("measureRef is %s", measureRef));
+
+      String measureIdentifier = getMeasureIdentifer(measureRef);
+      String measureFilePath = "configuration/patient-data-gen-libraries/" + measureIdentifier + ".cql";
+      logger.info(String.format("measureIdentifier is %s", measureIdentifier));
+      logger.info(String.format("Using CQL file at %s", measureFilePath));
+      
+      VersionedIdentifier versionedIdentifier = new VersionedIdentifier().withId(measureIdentifier).withVersion("1.0.0");
+      
+      URL cqlResource = ClasspathUtil.class.getClassLoader().getResource(measureFilePath);
+      if (cqlResource == null) {
+         throw new IllegalArgumentException(String.format("CQL file not found on classpath: %s", measureFilePath));
+      }
+
+      File cqlFile = new File(cqlResource.getFile());
       File libraryDirectory = cqlFile.getParentFile();
       ModelManager modelManager = new ModelManager();
       LibraryManager libraryManager = new LibraryManager(modelManager);
@@ -126,10 +151,22 @@ public class PatientDataGeneratorService {
       Object result = getEvaluationResultValue(results, versionedIdentifier);
 
       Bundle bundle = (Bundle) result;
-      String measureId = "cms104"; 
+      String measureId = measureRef; 
       appendGeneratedPatientGroup(bundle, numTestCases, measureId);
       return bundle;
    }
+
+   // convert short measureRef into the name used for VersionedIdentifier and the CQL filename 
+   private String getMeasureIdentifer(String measureRef) {
+      String identifier = measureMap.get(measureRef);
+      if (identifier == null) {
+         throw new IllegalArgumentException(
+            String.format("Measure reference %s not supported. Supported measures: CMS104, CMS122", measureRef)
+            );
+      }
+      return identifier;
+   }
+
 
    private Object getEvaluationResultValue(EvaluationResults results, VersionedIdentifier versionedIdentifier) {
       EvaluationResult evaluationResult = results.getResultFor(versionedIdentifier);
@@ -203,6 +240,7 @@ public class PatientDataGeneratorService {
       String groupIdentifier = measureId + "-" + 
          Integer.toString(numTestCases) + 
          "N" + GENERATED_PATIENT_BASE;
+      logger.info(String.format("groupIdentifier: %s", groupIdentifier));
       group.setId(groupIdentifier);
 
       for (Bundle.BundleEntryComponent entry : bundle.getEntry()) {
