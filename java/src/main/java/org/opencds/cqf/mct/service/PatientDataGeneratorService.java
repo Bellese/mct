@@ -136,9 +136,8 @@ public class PatientDataGeneratorService {
          EvaluationResults results = new CqlEngine(environment).evaluate(evaluationParamsBuilder.build());
          throwIfEvaluationFailed(results, versionedIdentifier);
          Object result = getEvaluationResultValue(results, versionedIdentifier);
-         Bundle bundle = (Bundle) result;
-         String measureId = "cms104"; 
-         appendGeneratedPatientGroup(bundle, numTestCases, measureId);
+         Bundle bundle = (Bundle) result; 
+         appendGeneratedPatientGroup(bundle, numTestCases, measureRef);
          return bundle;
       }
       ExternalFunctionProvider externalFunctionProvider = new SystemExternalFunctionProvider(Collections.singletonList(PatientDataGeneratorService.class.getMethod("getRandomNumber")));
